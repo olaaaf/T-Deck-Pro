@@ -11,10 +11,9 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}  # 指定的运行器环境中运行
+    runs-on: ubuntu-20.04  # 指定的运行器环境中运行 [ubuntu-latest, macos-latest, windows-latest]
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
         example: 
           - examples/factory
           - examples/test_BHI260AP
@@ -46,6 +45,6 @@ jobs:
         run: pip install --upgrade platformio
 
       - name: Run PlatformIO
-        run: pio ci --lib="." --board=uno --board=teensy31 --board=due
-        env:
-          PLATFORMIO_CI_SRC: ${{ matrix.example }}
+        run: |
+          export PLATFORMIO_SRC_DIR=${{ matrix.example }}
+          pio run
