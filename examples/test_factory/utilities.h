@@ -3,18 +3,16 @@
  * @author    ShallowGreen123
  * @license   MIT
  * @copyright Copyright (c) 2023  Shenzhen Xin Yuan Electronic Technology Co., Ltd
- * @date      2024-05-27
+ * @date      2023-04-11
+ *
  */
 #pragma once
-
-// board version: v1.0 - 24.03.28
 
 #define BOARD_I2C_ADDR_TOUCH      0x1A // Touch        --- CST328
 #define BOARD_I2C_ADDR_LTR_553ALS 0x23 // Light sensor --- LTR_553ALS
 #define BOARD_I2C_ADDR_GYROSCOPDE 0x28 // Gyroscope    --- BHI260AP
 #define BOARD_I2C_ADDR_KEYBOARD   0x34 // Keyboard     --- TCA8418
-#define BOARD_I2C_ADDR_BQ27220    0x55 //
-#define BOARD_I2C_ADDR_BQ25896    0x6B //
+#define BOARD_I2C_ADDR_PMU_SY6970 0x6A // PMU          --- SY6970
 
 // IIC
 #define BOARD_I2C_SDA  13
@@ -54,10 +52,6 @@
 #define BOARD_SPI_MISO 47
 
 // Display
-#define LCD_HOR_SIZE 240
-#define LCD_VER_SIZE 320
-#define DISP_BUF_SIZE (LCD_HOR_SIZE * LCD_VER_SIZE)
-
 #define BOARD_EPD_SCK  BOARD_SPI_SCK
 #define BOARD_EPD_MOSI BOARD_SPI_MOSI
 #define BOARD_EPD_DC   35

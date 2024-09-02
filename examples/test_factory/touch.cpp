@@ -1,4 +1,4 @@
-#include "factory.h"
+#include "test_factory.h"
 
 
 #include <TouchDrvCSTXXX.hpp>

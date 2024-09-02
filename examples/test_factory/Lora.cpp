@@ -1,4 +1,4 @@
-#include "factory.h"
+#include "test_factory.h"
 #include <RadioLib.h>
 
 SX1262 radio = new Module(BOARD_LORA_CS, BOARD_LORA_INT, BOARD_LORA_RST, BOARD_LORA_BUSY);

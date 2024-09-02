@@ -1,5 +1,5 @@
 
-#include "factory.h"
+#include "test_factory.h"
 
 #define KEYPAD_ROWS 4
 #define KEYPAD_COLS 10
