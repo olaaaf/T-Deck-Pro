@@ -1,5 +1,5 @@
 
-#include "factory.h"
+#include "test_factory.h"
 #include <Fonts/FreeMono9pt7b.h>
 #include <Fonts/FreeMonoBold9pt7b.h>
 #include <Fonts/FreeMonoBold12pt7b.h>
