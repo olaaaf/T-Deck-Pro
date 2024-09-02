@@ -10,41 +10,60 @@ on:
       - "platformio.ini"
 
 jobs:
-  build:
-    runs-on: ubuntu-20.04  # 指定的运行器环境中运行 [ubuntu-latest, macos-latest, windows-latest]
-    strategy:
-      matrix:
-        example: 
-          - examples/factory
-          - examples/test_BHI260AP
-          - examples/test_EPD
-          - examples/test_factory
-          - examples/test_GPS
-          - examples/test_keypad
-          - examples/test_lora_recv
-          - examples/test_lora_send
-          - examples/test_LTR_553ALS
-          - examples/test_lvgl
-          - examples/test_sd
-          - examples/test_touchpad
-          - examples/test_wifi
+  # build:
+  #   runs-on: ubuntu-20.04  # 指定的运行器环境中运行 [ubuntu-latest, macos-latest, windows-latest]
+  #   strategy:
+  #     matrix:
+  #       example: 
+  #         - examples/factory
+  #         - examples/test_BHI260AP
+  #         - examples/test_EPD
+  #         - examples/test_factory
+  #         - examples/test_GPS
+  #         - examples/test_keypad
+  #         - examples/test_lora_recv
+  #         - examples/test_lora_send
+  #         - examples/test_LTR_553ALS
+  #         - examples/test_lvgl
+  #         - examples/test_sd
+  #         - examples/test_touchpad
+  #         - examples/test_wifi
+
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/cache@v4
+  #       with:
+  #         path: |
+  #           ~/.cache/pip
+  #           ~/.platformio/.cache
+  #         key: ${{ runner.os }}-pio
+  #     - uses: actions/setup-python@v5
+  #       with:
+  #         python-version: '3.11'
+        
+  #     - name: Install PlatformIO Core
+  #       run: pip install --upgrade platformio
+
+  #     - name: Run PlatformIO
+  #       run: |
+  #         export PLATFORMIO_SRC_DIR=${{ matrix.example }}
+  #         pio run
+    
+  get-modified-files:
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/pip
-            ~/.platformio/.cache
-          key: ${{ runner.os }}-pio
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-        
-      - name: Install PlatformIO Core
-        run: pip install --upgrade platformio
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Run PlatformIO
-        run: |
-          export PLATFORMIO_SRC_DIR=${{ matrix.example }}
-          pio run
+    - name: Get list of modified files
+      id: modified_files
+      run: |
+        git fetch --depth=1
+        MODIFIED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+        echo "MODIFIED_FILES=${MODIFIED_FILES}" >> $GITHUB_ENV
+
+    - name: Use modified files
+      run: |
+        echo "The following files were modified:"
+        echo "$MODIFIED_FILES"
