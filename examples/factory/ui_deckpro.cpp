@@ -88,8 +88,8 @@ static struct menu_btn menu_btn_list[] =
     {SCREEN6_ID,  &img_batt,    "Battery",  167, 111},
     {SCREEN7_ID,  &img_touch,   "Input",    23, 199},
     {SCREEN8_ID,  &img_A7682,   "A7682",    95, 199},
-    {SCREEN9_ID,  &img_lora,    "Lora8", 167, 199},
-    {SCREEN10_ID, &img_lora,    "Lora9", 23, 23},  // Page two
+    {SCREEN9_ID,  &img_lora,    "Shutdown", 167, 199},
+    {SCREEN10_ID, &img_lora,    "Text ", 23, 23},  // Page two
 };
 
 static void menu_btn_event_cb(lv_event_t *e)
@@ -847,7 +847,7 @@ static void scr6_btn_event_cb(lv_event_t * e)
     }
 }
 
-void batt_trans_event_cb(lv_event_t *e)
+static void batt_trans_event_cb(lv_event_t *e)
 {
     if(e->code == LV_EVENT_CLICKED) {
         show_batt_type = !show_batt_type;
@@ -1048,6 +1048,8 @@ static scr_lifecycle_t screen8 = {
 #endif
 //************************************[ screen 9 ]******************************************  
 #if 1
+static lv_timer_t *shutdown_timer = NULL;
+
 static void scr9_btn_event_cb(lv_event_t * e)
 {
     if(e->code == LV_EVENT_CLICKED){
@@ -1055,10 +1057,22 @@ static void scr9_btn_event_cb(lv_event_t * e)
     }
 }
 
+static void shutdown_timer_event(lv_timer_t* t)
+{
+    ui_shutdown_on();
+}
+
 static void create9(lv_obj_t *parent) 
 {
-    
-    lv_obj_t *back9_label = scr_back_btn_create(parent, ("999"), scr9_btn_event_cb);
+    lv_obj_t *lab = lv_label_create(parent);
+    lv_obj_set_style_text_font(lab, FONT_BOLD_SIZE_15, LV_PART_MAIN);
+    lv_label_set_text(lab, "Shutdown...");
+    lv_obj_center(lab);
+
+    shutdown_timer = lv_timer_create(shutdown_timer_event, 1000, NULL);
+
+
+    lv_obj_t *back9_label = scr_back_btn_create(parent, ("Shutdown"), scr9_btn_event_cb);
 }
 static void entry9(void) 
 {

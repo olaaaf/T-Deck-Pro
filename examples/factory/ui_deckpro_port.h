@@ -105,6 +105,10 @@ const char * ui_batt_25896_get_ntc_st(void);
 int ui_input_get_touch_coord(int *x, int *y);
 int ui_input_get_keypay_val(char *v);
 void ui_input_set_keypay_flag(void);
+
+//
+void ui_shutdown_on(void);
+
 #ifdef __cplusplus
 } /*extern "C"*/
 #endif

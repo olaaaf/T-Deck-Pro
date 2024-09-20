@@ -205,43 +205,57 @@ bool ui_gyroscope_is_vaild(void) { return flag_Gyroscope_init; }
 // BQ25896
 bool ui_batt_25896_is_chg(void)
 {
-    return true;
+    if(PPM.isVbusIn() == false) {
+        return false;
+    } else {
+        return true;
+    }
+    // return true;
 }
 float ui_batt_25896_get_vbus(void)
 {
-    return 4.5;
+    return (PPM.getVbusVoltage() *1.0 / 1000.0 );
+    // return 4.5;
 }
 float ui_batt_25896_get_vsys(void)
 {
-    return 4.5;
+    return (PPM.getSystemVoltage() * 1.0 / 1000.0);
+    // return 4.5;
 }
 float ui_batt_25896_get_vbat(void)
 {
-    return 4.5;
+    return (PPM.getBattVoltage() * 1.0 / 1000.0);
+    // return 4.5;
 }
 float ui_batt_25896_get_volt_targ(void)
 {
-    return 4.5; 
+    return (PPM.getChargeTargetVoltage() * 1.0 / 1000.0);
+    // return 4.5; 
 }
 float ui_batt_25896_get_chg_curr(void)
 {
-    return 4.5;
+    return (PPM.getChargeCurrent());
+    // return 4.5;
 }
 float ui_batt_25896_get_pre_curr(void)
 {
-    return 4.5;
+    return (PPM.getPrechargeCurr());;
+    // return 4.5;
 }
 const char * ui_batt_25896_get_chg_st(void)
 {
-    return "hello";
+    return PPM.getChargeStatusString();
+    // return "hello";
 }
 const char * ui_batt_25896_get_vbus_st(void)
 {
-    return "hello";
+    return PPM.getBusStatusString();
+    // return "hello";
 }
 const char * ui_batt_25896_get_ntc_st(void)
 {
-    return "hello";
+    return PPM.getNTCStatusString();
+    // return "hello";
 }
 
 //************************************[ screen 7 ]****************************************** Input
@@ -264,4 +278,10 @@ void ui_input_set_keypay_flag(void)
 {
     keypad_set_flag();
 }
+//************************************[ screen 9 ]****************************************** Input
 
+void ui_shutdown_on(void)
+{
+    PPM.shutdown();
+    Serial.println("Shutdown .....");
+}

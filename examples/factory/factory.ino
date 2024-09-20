@@ -23,13 +23,15 @@
 #include "SPI.h"
 
 
+XPowersPPM PPM;
+
 TouchDrvCSTXXX touch;
 GxEPD2_BW<GxEPD2_310_GDEQ031T10, GxEPD2_310_GDEQ031T10::HEIGHT> display(GxEPD2_310_GDEQ031T10(BOARD_EPD_CS, BOARD_EPD_DC, BOARD_EPD_RST, BOARD_EPD_BUSY)); // GDEQ031T10 240x320, UC8253, (no inking, backside mark KEGMO 3100)
 
 uint8_t *decodebuffer = NULL;
 lv_timer_t *flush_timer = NULL;
 int disp_refr_mode = DISP_REFR_MODE_PART;
-const char HelloWorld[] = "Hello World!";
+const char HelloWorld[] = "T-Deck-Pro!";
 
 bool flag_sd_init = false;
 bool flag_lora_init = false;
@@ -186,6 +188,47 @@ static void lvgl_init(void)
     lv_indev_drv_register(&indev_drv);
 }
 
+static void bq25896_init(void)
+{
+    // BQ25896 --- 0x6B
+    Wire.beginTransmission(BOARD_I2C_ADDR_BQ25896);
+    if (Wire.endTransmission() == 0)
+    {
+        flag_BQ25896_init = true;
+        // battery_25896.begin();
+        PPM.init(Wire, BOARD_I2C_SDA, BOARD_I2C_SCL, BOARD_I2C_ADDR_BQ25896);
+        // Set the minimum operating voltage. Below this voltage, the PPM will protect
+        PPM.setSysPowerDownVoltage(3300);
+
+        // Set input current limit, default is 500mA
+        PPM.setInputCurrentLimit(3250);
+
+        Serial.printf("getInputCurrentLimit: %d mA\n",PPM.getInputCurrentLimit());
+
+        // Disable current limit pin
+        PPM.disableCurrentLimitPin();
+
+        // Set the charging target voltage, Range:3840 ~ 4608mV ,step:16 mV
+        PPM.setChargeTargetVoltage(4208);
+
+        // Set the precharge current , Range: 64mA ~ 1024mA ,step:64mA
+        PPM.setPrechargeCurr(64);
+
+        // The premise is that Limit Pin is disabled, or it will only follow the maximum charging current set by Limi tPin.
+        // Set the charging current , Range:0~5056mA ,step:64mA
+        PPM.setChargerConstantCurr(832);
+
+        // Get the set charging current
+        PPM.getChargerConstantCurr();
+        Serial.printf("getChargerConstantCurr: %d mA\n",PPM.getChargerConstantCurr());
+
+        PPM.enableADCMeasure();
+
+        PPM.enableCharge();
+    }
+}
+
+
 void setup()
 {
     Serial.begin(115200);
@@ -237,6 +280,7 @@ void setup()
             }
         }
     }
+    bq25896_init();
     Serial.printf("------------------------------ \n");
 
     touch.setPins(BOARD_TOUCH_RST, BOARD_TOUCH_INT);
