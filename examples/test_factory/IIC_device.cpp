@@ -76,7 +76,6 @@ bool LTR_553ALS_init(int i2c_addr)
     * * * */
     als.setPsLedDutyCycle(SensorLTR553::PS_LED_DUTY_100);
 
-
     /*
     *   PS_LED_CUR_5MA,
     *   PS_LED_CUR_10MA,
@@ -84,7 +83,7 @@ bool LTR_553ALS_init(int i2c_addr)
     *   PS_LED_CUR_50MA,
     *   PS_LED_CUR_100MA,
     * * * * * * * */
-    als.setPsLedCurrnet(SensorLTR553::PS_LED_CUR_100MA);
+    als.setPsLedCurrent(SensorLTR553::PS_LED_CUR_100MA);
 
     /*
     *   PS_MEAS_RATE_50MS,
