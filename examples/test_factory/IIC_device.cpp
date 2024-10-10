@@ -134,19 +134,19 @@ float accel_factor;
 float gyro_factor;
 float magn_factor;
 
-void accel_process_callback(uint8_t sensor_id, uint8_t *data_ptr, uint32_t len)
+void accel_process_callback(uint8_t sensor_id, uint8_t *data_ptr, uint32_t len, uint64_t *timestamp)
 {
     accel_factor = get_sensor_default_scaling(sensor_id);
     bhy2_parse_xyz(data_ptr, &accel_data);
 }
 
-void gyro_process_callback(uint8_t sensor_id, uint8_t *data_ptr, uint32_t len)
+void gyro_process_callback(uint8_t sensor_id, uint8_t *data_ptr, uint32_t len, uint64_t *timestamp)
 {
     gyro_factor = get_sensor_default_scaling(sensor_id);
     bhy2_parse_xyz(data_ptr, &gyro_data);
 }
 
-void magn_process_callback(uint8_t sensor_id, uint8_t *data_ptr, uint32_t len)
+void magn_process_callback(uint8_t sensor_id, uint8_t *data_ptr, uint32_t len, uint64_t *timestamp)
 {
     magn_factor = get_sensor_default_scaling(sensor_id);
     bhy2_parse_xyz(data_ptr, &magn_data);
