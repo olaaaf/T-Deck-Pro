@@ -17,7 +17,6 @@ jobs:
         example: 
           - examples/factory
           - examples/A7682E/test_AT
-          - examples/aduio_pcm5102a
           - examples/test_BHI260AP
           - examples/test_EPD
           - examples/test_factory
