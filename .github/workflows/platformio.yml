@@ -15,6 +15,7 @@ jobs:
     strategy:
       matrix:
         example: 
+          - examples/aduio_pcm5102a
           - examples/factory
           - examples/A7682E/test_AT
           - examples/test_BHI260AP

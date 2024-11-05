@@ -18,8 +18,8 @@ void setup(void)
     pinMode(BOARD_GPS_EN, OUTPUT);
     digitalWrite(BOARD_GPS_EN, HIGH);
 
-    SerialMon.begin(115200);
-    SerialGPS.begin(115200, SERIAL_8N1, BOARD_GPS_RXD, BOARD_GPS_TXD);
+    SerialMon.begin(38400);
+    SerialGPS.begin(38400, SERIAL_8N1, BOARD_GPS_RXD, BOARD_GPS_TXD);
 
     delay(1500);
 }
@@ -34,5 +34,4 @@ void loop(void)
     {
         SerialGPS.write(SerialMon.read());
     }
-    delay(3000);
 }
