@@ -112,6 +112,13 @@ uint8_t TouchClassCST226::getPoint(int16_t *x_array, int16_t *y_array, uint8_t g
         return 0;
     }
 
+// ------------------------------------
+    uint8_t point1_press = buffer[0] & 0x0F;
+    if(point == 0x01 && point1_press != 0x06) {
+        point = 0;
+    }
+// ------------------------------------
+
     for (int i = 0; i < point; i++) {
         report.id[i] = buffer[index] >> 4;
         report.status[i] = buffer[index] & 0x0F;
