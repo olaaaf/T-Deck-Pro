@@ -33,6 +33,8 @@ lv_timer_t *flush_timer = NULL;
 int disp_refr_mode = DISP_REFR_MODE_PART;
 const char HelloWorld[] = "T-Deck-Pro!";
 
+bool peri_init_st[E_PERI_NUM_MAX] = {0};
+
 bool flag_sd_init = false;
 bool flag_lora_init = false;
 bool flag_Touch_init = false;
@@ -117,19 +119,19 @@ static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_colo
     union flush_buf_pixel pixel;
 
     for(int i = 0; i < w * h; i += 8) {
-        pixel.bit.b1 = (color_p + i + 7)->ch.red;
-        pixel.bit.b2 = (color_p + i + 6)->ch.red;
-        pixel.bit.b3 = (color_p + i + 5)->ch.red;
-        pixel.bit.b4 = (color_p + i + 4)->ch.red;
-        pixel.bit.b5 = (color_p + i + 3)->ch.red;
-        pixel.bit.b6 = (color_p + i + 2)->ch.red;
-        pixel.bit.b7 = (color_p + i + 1)->ch.red;
-        pixel.bit.b8 = (color_p + i + 0)->ch.red;
+        pixel.bit.b1 = (color_p + i + 7)->full;
+        pixel.bit.b2 = (color_p + i + 6)->full;
+        pixel.bit.b3 = (color_p + i + 5)->full;
+        pixel.bit.b4 = (color_p + i + 4)->full;
+        pixel.bit.b5 = (color_p + i + 3)->full;
+        pixel.bit.b6 = (color_p + i + 2)->full;
+        pixel.bit.b7 = (color_p + i + 1)->full;
+        pixel.bit.b8 = (color_p + i + 0)->full;
         decodebuffer[epd_idx] = pixel.full;
         epd_idx++;
     }
 
-    Serial.printf("x1=%d, y1=%d, x2=%d, y2=%d\n", area->x1, area->y1, area->x2, area->y2);
+    // Serial.printf("x1=%d, y1=%d, x2=%d, y2=%d\n", area->x1, area->y1, area->x2, area->y2);
 
     /*IMPORTANT!!!
      *Inform the graphics library that you are ready with the flushing*/
@@ -188,7 +190,7 @@ static void lvgl_init(void)
     lv_indev_drv_register(&indev_drv);
 }
 
-static void bq25896_init(void)
+static bool bq25896_init(void)
 {
     // BQ25896 --- 0x6B
     Wire.beginTransmission(BOARD_I2C_ADDR_BQ25896);
@@ -225,12 +227,23 @@ static void bq25896_init(void)
         PPM.enableADCMeasure();
 
         PPM.enableCharge();
-    }
-}
 
+        return true;
+    }
+    return false;
+}
 
 void setup()
 {
+    // LORA、SD、EPD use the same SPI, in order to avoid mutual influence;
+    // before powering on, all CS signals should be pulled high and in an unselected state;
+    pinMode(BOARD_EPD_CS, OUTPUT); 
+    digitalWrite(BOARD_EPD_CS, HIGH);
+    pinMode(BOARD_SD_CS, OUTPUT); 
+    digitalWrite(BOARD_SD_CS, HIGH);
+    pinMode(BOARD_LORA_CS, OUTPUT); 
+    digitalWrite(BOARD_LORA_CS, HIGH);
+
     Serial.begin(115200);
 
     // IO
@@ -280,39 +293,49 @@ void setup()
             }
         }
     }
-    bq25896_init();
+    
     Serial.printf("------------------------------ \n");
-
-    touch.setPins(BOARD_TOUCH_RST, BOARD_TOUCH_INT);
-    flag_Touch_init = touch.begin(Wire, BOARD_I2C_ADDR_TOUCH, BOARD_TOUCH_SDA, BOARD_TOUCH_SCL);
-    if (!flag_Touch_init) {
-        Serial.println("Failed to find Capacitive Touch !");
-    } else {
-        Serial.println("Find Capacitive Touch");
-    }
-
-    flag_Keypad_init = keypad_init(BOARD_I2C_ADDR_KEYBOARD);
 
     // SPI
     SPI.begin(BOARD_SPI_SCK, BOARD_SPI_MISO, BOARD_SPI_MOSI);
 
+    // init peripheral
+    touch.setPins(BOARD_TOUCH_RST, BOARD_TOUCH_INT);
+    peri_init_st[E_PERI_TOUCH] = touch.begin(Wire, BOARD_I2C_ADDR_TOUCH, BOARD_TOUCH_SDA, BOARD_TOUCH_SCL);
+    peri_init_st[E_PERI_KYEPAD] = keypad_init(BOARD_I2C_ADDR_KEYBOARD);
+    peri_init_st[E_PERI_BQ25896] = bq25896_init();
+    peri_init_st[E_PERI_BQ27220] = false;
+    peri_init_st[E_PERI_LORA] = lora_init();
+    peri_init_st[E_PERI_SD] = SD.begin(BOARD_SD_CS);
+    peri_init_st[E_PERI_INK_SCREEN] = false;
+    // touch.setPins(BOARD_TOUCH_RST, BOARD_TOUCH_INT);
+    // flag_Touch_init = touch.begin(Wire, BOARD_I2C_ADDR_TOUCH, BOARD_TOUCH_SDA, BOARD_TOUCH_SCL);
+    // if (!flag_Touch_init) {
+    //     Serial.println("Failed to find Capacitive Touch !");
+    // } else {
+    //     Serial.println("Find Capacitive Touch");
+    // }
+
+    // flag_Keypad_init = keypad_init(BOARD_I2C_ADDR_KEYBOARD);
+
+    // SPI
+    // SPI.begin(BOARD_SPI_SCK, BOARD_SPI_MISO, BOARD_SPI_MOSI);
+
     helloWorld();
     // delay(1000);
 
-    if(SD.begin(BOARD_SD_CS)) {
-        flag_sd_init = true;
-        Serial.println("sd success");
-    } else {
-        Serial.println("sd faild");
-    }
+    // if(SD.begin(BOARD_SD_CS)) {
+    //     flag_sd_init = true;
+    //     Serial.println("sd success");
+    // } else {
+    //     Serial.println("sd faild");
+    // }
 
     // lora
-    flag_lora_init = lora_init();
-
+    // flag_lora_init = lora_init();
 
     // GPS AT init
     SerialGPS.begin(38400, SERIAL_8N1, BOARD_GPS_RXD, BOARD_GPS_TXD);
-
 
     lvgl_init();
 

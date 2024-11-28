@@ -1,6 +1,23 @@
 #ifndef __PERIPHERAL_H__
 #define __PERIPHERAL_H__
 
+enum {
+    E_PERI_LORA = 0,
+    E_PERI_KYEPAD,
+    E_PERI_BQ25896,
+    E_PERI_BQ27220,
+    E_PERI_GPS,
+    E_PERI_BHI260AP,
+    E_PERI_INK_SCREEN,
+    E_PERI_LTR_553ALS,
+    E_PERI_TOUCH,
+    E_PERI_MIC,
+    E_PERI_SD,
+    E_PERI_A7683E,
+    E_PERI_PCM5102A,
+    E_PERI_NUM_MAX,
+};
+
 // lora sx1262
 #define LORA_FREQ      850.0
 #define LORA_MODE_SEND 0

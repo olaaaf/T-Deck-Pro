@@ -191,15 +191,11 @@ void ui_wifi_get_scan_info(ui_wifi_scan_info_t *list, int list_len)
         list[i].rssi = WiFi.RSSI(i);
     }
 }
-//************************************[ screen 5 ]****************************************** Test
-bool ui_sd_is_vaild(void) { return flag_sd_init; }
-bool ui_lora_is_vaild(void) { return flag_lora_init; }
-bool ui_keypad_is_vaild(void) { return flag_Keypad_init; }
-bool ui_bq25896_is_vaild(void) { return flag_BQ25896_init; }
-bool ui_bq27220_is_vaild(void) { return flag_BQ27220_init; }
-bool ui_ltr553_is_vaild(void) { return flag_LTR553ALS_init; }
-bool ui_touch_is_vaild(void) { return flag_Touch_init; }
-bool ui_gyroscope_is_vaild(void) { return flag_Gyroscope_init; }
+//************************************[ screen 5 ]****************************************** State
+bool ui_state_get(int peri_id)
+{
+    return peri_init_st[peri_id];
+} 
 
 //************************************[ screen 6 ]****************************************** Battery
 // BQ25896

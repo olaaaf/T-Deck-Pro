@@ -78,15 +78,8 @@ void ui_GPS_get_info(float *lat, float *lon, float *speed, float *alt, float *ac
 // [ screen 4 ] --- Wifi Scan
 void ui_wifi_get_scan_info(ui_wifi_scan_info_t *list, int list_len);
 
-// [ screen 5 ] --- Test
-bool ui_sd_is_vaild(void);
-bool ui_lora_is_vaild(void);
-bool ui_keypad_is_vaild(void);
-bool ui_bq25896_is_vaild(void);
-bool ui_bq27220_is_vaild(void);
-bool ui_ltr553_is_vaild(void);
-bool ui_touch_is_vaild(void);
-bool ui_gyroscope_is_vaild(void);
+// [ screen 5 ] --- State
+bool ui_state_get(int peri_id);
 
 // [ screen 6 ] --- Battery
 // BQ25896

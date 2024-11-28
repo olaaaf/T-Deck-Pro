@@ -80,7 +80,10 @@ typedef struct _ui_setting
 
 typedef struct _ui_test {
     const char *name;
-    bool (*cb)(void);
+    int peri_id;
+    lv_obj_t *obj;
+    lv_obj_t *st;
+    bool (*cb)(int);
 } ui_test_handle;
 
 typedef struct {

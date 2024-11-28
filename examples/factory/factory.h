@@ -5,6 +5,7 @@
  *                                  INCLUDES
  * *******************************************************************************/
 #include <XPowersLib.h>
+#include "peripheral.h"
 
 /*********************************************************************************
  *                                   DEFINES
@@ -26,6 +27,7 @@ extern bool flag_BQ25896_init;
 extern bool flag_BQ27220_init;
 extern bool flag_LTR553ALS_init;
 
+extern bool peri_init_st[E_PERI_NUM_MAX];
 extern XPowersPPM PPM;
 /*********************************************************************************
  *                                  TYPEDEFS
