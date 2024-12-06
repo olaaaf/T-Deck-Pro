@@ -137,6 +137,19 @@ bool ui_setting_get_a7682_status(void)
 {
     return default_a7682_status;
 }
+
+// About System
+const char *ui_setting_get_sf_ver(void)
+{
+    return "v1.0-241205";
+}
+
+const char *ui_setting_get_sd_capacity(void)
+{
+
+    return "1234/32768Mb";
+}
+
 #endif
 //************************************[ screen 3 ]****************************************** GPS
 void ui_GPS_print_info(void)
@@ -191,8 +204,8 @@ void ui_wifi_get_scan_info(ui_wifi_scan_info_t *list, int list_len)
         list[i].rssi = WiFi.RSSI(i);
     }
 }
-//************************************[ screen 5 ]****************************************** State
-bool ui_state_get(int peri_id)
+//************************************[ screen 5 ]****************************************** Test
+bool ui_test_get(int peri_id)
 {
     return peri_init_st[peri_id];
 } 
@@ -274,6 +287,30 @@ void ui_input_set_keypay_flag(void)
 {
     keypad_set_flag();
 }
+
+int ui_other_get_LTR(int *ch0, int *ch1, int *ps)
+{
+    if(ch0 != NULL) *ch0 = lv_rand(0, LCD_VER_SIZE);
+    if(ch1 != NULL) *ch1 = lv_rand(0, LCD_VER_SIZE);
+    if(ps  != NULL) *ps  = lv_rand(0, LCD_VER_SIZE);
+    return 1;
+}
+
+int ui_other_get_gyro(float *gyro_x, float *gyro_y, float *gyro_z)
+{
+    if(gyro_x != NULL) *gyro_x = lv_rand(0, LCD_VER_SIZE);
+    if(gyro_y != NULL) *gyro_y = lv_rand(0, LCD_VER_SIZE);
+    if(gyro_z != NULL) *gyro_z = lv_rand(0, LCD_VER_SIZE);
+    return 1;
+}
+
+//************************************[ screen 8 ]****************************************** A7682E
+bool ui_a7682_at_cb(const char *at_cmd)
+{
+    printf("[A7682E] at cmd: %s\n", at_cmd);
+    return false;
+}
+
 //************************************[ screen 9 ]****************************************** Input
 
 void ui_shutdown_on(void)

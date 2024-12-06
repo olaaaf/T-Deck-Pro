@@ -49,6 +49,7 @@ enum {
     SCREEN0_ID = 0,
     SCREEN1_ID,
     SCREEN2_ID,
+    SCREEN2_1_ID,
     SCREEN3_ID,
     SCREEN4_ID,
     SCREEN5_ID,
@@ -69,14 +70,21 @@ struct menu_btn {
     lv_coord_t pos_y; 
 };
 
+enum{
+    UI_SETTING_TYPE_SW,
+    UI_SETTING_TYPE_SUB,
+};
+
 typedef struct _ui_setting
 {
     const char *name;
-    lv_obj_t *obj;
-    lv_obj_t *st;
+    int type;
     void (*set_cb)(bool);
     bool (*get_cb)(void);
-}_ui_setting_handle;
+    int sub_id;
+    lv_obj_t *obj;
+    lv_obj_t *st;
+} ui_setting_handle;
 
 typedef struct _ui_test {
     const char *name;
@@ -85,6 +93,13 @@ typedef struct _ui_test {
     lv_obj_t *st;
     bool (*cb)(int);
 } ui_test_handle;
+
+typedef struct _ui_a7682 {
+    const char *name;
+    lv_obj_t *obj;
+    lv_obj_t *st;
+    bool (*cb)(const char *at_cmd);
+} ui_a7682_handle;
 
 typedef struct {
     char name[16];

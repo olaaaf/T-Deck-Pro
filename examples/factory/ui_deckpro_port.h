@@ -68,6 +68,9 @@ bool ui_setting_get_lora_status(void);
 bool ui_setting_get_gyro_status(void); 
 bool ui_setting_get_a7682_status(void);
 
+// About System
+const char *ui_setting_get_sf_ver(void);
+const char *ui_setting_get_sd_capacity(void);
 
 // [ screen 3 ] --- GPS
 void ui_GPS_print_info(void);
@@ -79,7 +82,7 @@ void ui_GPS_get_info(float *lat, float *lon, float *speed, float *alt, float *ac
 void ui_wifi_get_scan_info(ui_wifi_scan_info_t *list, int list_len);
 
 // [ screen 5 ] --- State
-bool ui_state_get(int peri_id);
+bool ui_test_get(int peri_id);
 
 // [ screen 6 ] --- Battery
 // BQ25896
@@ -98,8 +101,13 @@ const char * ui_batt_25896_get_ntc_st(void);
 int ui_input_get_touch_coord(int *x, int *y);
 int ui_input_get_keypay_val(char *v);
 void ui_input_set_keypay_flag(void);
+int ui_other_get_LTR(int *ch0, int *ch1, int *ps);
+int ui_other_get_gyro(float *gyro_x, float *gyro_y, float *gyro_z);
 
-//
+// [ screen 8 ] --- A7682E
+bool ui_a7682_at_cb(const char *at_cmd);
+
+// shutdown
 void ui_shutdown_on(void);
 
 #ifdef __cplusplus
