@@ -46,7 +46,7 @@ bool flag_LTR553ALS_init = false;
 /*********************************************************************************
  *                              STATIC PROTOTYPES
  * *******************************************************************************/
-static void helloWorld()
+static bool ink_screen_init()
 {
     // SPI.begin(BOARD_SPI_SCK, -1, BOARD_SPI_MOSI, BOARD_EPD_CS);
     display.init(115200, true, 2, false);
@@ -70,6 +70,7 @@ static void helloWorld()
     }
     while (display.nextPage());
     display.hibernate();
+    return true;
 }
 
 static void flush_timer_cb(lv_timer_t *t)
@@ -233,6 +234,13 @@ static bool bq25896_init(void)
     return false;
 }
 
+static bool GPS_AT_init(void)
+{
+    // GPS AT init
+    SerialGPS.begin(38400, SERIAL_8N1, BOARD_GPS_RXD, BOARD_GPS_TXD);
+    return true;
+}
+
 void setup()
 {
     // LORA、SD、EPD use the same SPI, in order to avoid mutual influence;
@@ -301,13 +309,20 @@ void setup()
 
     // init peripheral
     touch.setPins(BOARD_TOUCH_RST, BOARD_TOUCH_INT);
-    peri_init_st[E_PERI_TOUCH] = touch.begin(Wire, BOARD_I2C_ADDR_TOUCH, BOARD_TOUCH_SDA, BOARD_TOUCH_SCL);
-    peri_init_st[E_PERI_KYEPAD] = keypad_init(BOARD_I2C_ADDR_KEYBOARD);
-    peri_init_st[E_PERI_BQ25896] = bq25896_init();
-    peri_init_st[E_PERI_BQ27220] = false;
-    peri_init_st[E_PERI_LORA] = lora_init();
-    peri_init_st[E_PERI_SD] = SD.begin(BOARD_SD_CS);
-    peri_init_st[E_PERI_INK_SCREEN] = false;
+    peri_init_st[E_PERI_INK_SCREEN] = ink_screen_init();
+    peri_init_st[E_PERI_LORA]       = lora_init();
+    peri_init_st[E_PERI_TOUCH]      = touch.begin(Wire, BOARD_I2C_ADDR_TOUCH, BOARD_TOUCH_SDA, BOARD_TOUCH_SCL);
+    peri_init_st[E_PERI_KYEPAD]     = keypad_init(BOARD_I2C_ADDR_KEYBOARD);
+    peri_init_st[E_PERI_BQ25896]    = bq25896_init();
+    peri_init_st[E_PERI_BQ27220]    = false;
+    peri_init_st[E_PERI_SD]         = SD.begin(BOARD_SD_CS);
+    peri_init_st[E_PERI_GPS]        = GPS_AT_init();
+    peri_init_st[E_PERI_BHI260AP]   = BHI260AP_init();
+    peri_init_st[E_PERI_LTR_553ALS] = LTR553_init();
+    peri_init_st[E_PERI_A7682E]     = false;
+    peri_init_st[E_PERI_PCM5102A]   = false;
+    
+
     // touch.setPins(BOARD_TOUCH_RST, BOARD_TOUCH_INT);
     // flag_Touch_init = touch.begin(Wire, BOARD_I2C_ADDR_TOUCH, BOARD_TOUCH_SDA, BOARD_TOUCH_SCL);
     // if (!flag_Touch_init) {
@@ -321,7 +336,7 @@ void setup()
     // SPI
     // SPI.begin(BOARD_SPI_SCK, BOARD_SPI_MISO, BOARD_SPI_MOSI);
 
-    helloWorld();
+    
     // delay(1000);
 
     // if(SD.begin(BOARD_SD_CS)) {
@@ -334,8 +349,7 @@ void setup()
     // lora
     // flag_lora_init = lora_init();
 
-    // GPS AT init
-    SerialGPS.begin(38400, SERIAL_8N1, BOARD_GPS_RXD, BOARD_GPS_TXD);
+    
 
     lvgl_init();
 

@@ -185,7 +185,7 @@ bool Gyroscope_init(int i2c_addr)
     bhy.onResultEvent(SENSOR_ID_GYRO_PASS, gyro_process_callback);
 
     // Set the Magnetometer sensor result callback function
-    bhy.onResultEvent(SENSOR_ID_MAG_PASS, gyro_process_callback);
+    bhy.onResultEvent(SENSOR_ID_MAG_PASS, magn_process_callback);
     
     return true;
 }

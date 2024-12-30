@@ -146,7 +146,7 @@ const char *ui_setting_get_sf_ver(void)
 
 const char *ui_setting_get_sd_capacity(void)
 {
-
+    
     return "1234/32768Mb";
 }
 
@@ -290,17 +290,37 @@ void ui_input_set_keypay_flag(void)
 
 int ui_other_get_LTR(int *ch0, int *ch1, int *ps)
 {
-    if(ch0 != NULL) *ch0 = lv_rand(0, LCD_VER_SIZE);
-    if(ch1 != NULL) *ch1 = lv_rand(0, LCD_VER_SIZE);
-    if(ps  != NULL) *ps  = lv_rand(0, LCD_VER_SIZE);
+    // if(ch0 != NULL) *ch0 = lv_rand(0, LCD_VER_SIZE);
+    // if(ch1 != NULL) *ch1 = lv_rand(0, LCD_VER_SIZE);
+    // if(ps  != NULL) *ps  = lv_rand(0, LCD_VER_SIZE);
+
+    if((ch0 != NULL) && (ch1 != NULL) && (ps != NULL))
+    {
+        *ch0 = LTR_553ALS_get_channel(0);
+        *ch1 = LTR_553ALS_get_channel(1);
+        *ps  = LTR_553ALS_get_ps();
+    }
+    else
+    {
+        Serial.printf("[%d] %s : Argument cannot be empty", __LINE__, __FILE__);
+    }
     return 1;
 }
 
 int ui_other_get_gyro(float *gyro_x, float *gyro_y, float *gyro_z)
 {
-    if(gyro_x != NULL) *gyro_x = lv_rand(0, LCD_VER_SIZE);
-    if(gyro_y != NULL) *gyro_y = lv_rand(0, LCD_VER_SIZE);
-    if(gyro_z != NULL) *gyro_z = lv_rand(0, LCD_VER_SIZE);
+    // if(gyro_x != NULL) *gyro_x = lv_rand(0, LCD_VER_SIZE);
+    // if(gyro_y != NULL) *gyro_y = lv_rand(0, LCD_VER_SIZE);
+    // if(gyro_z != NULL) *gyro_z = lv_rand(0, LCD_VER_SIZE);
+
+    if((gyro_x != NULL) && (gyro_x != NULL) && (gyro_x != NULL))
+    {
+        BHI260AP_get_val(2, gyro_x, gyro_y, gyro_z);
+    }
+    else
+    {
+        Serial.printf("[%d] %s : Argument cannot be empty", __LINE__, __FILE__);
+    }
     return 1;
 }
 
