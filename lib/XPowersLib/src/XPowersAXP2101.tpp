@@ -83,7 +83,7 @@ typedef enum {
     XPOWERS_AXP2101_CHG_CC_STATE,    //constant charge
     XPOWERS_AXP2101_CHG_CV_STATE,    //constant voltage
     XPOWERS_AXP2101_CHG_DONE_STATE,  //charge done
-    XPOWERS_AXP2101_CHG_STOP_STATE,  //not charge
+    XPOWERS_AXP2101_CHG_STOP_STATE,  //not chargin
 } xpowers_chg_status_t;
 
 typedef enum {
@@ -134,6 +134,27 @@ typedef enum {
     XPOWERS_AXP2101_WDT_TIMEOUT_64S,
     XPOWERS_AXP2101_WDT_TIMEOUT_128S,
 } xpowers_wdt_timeout_t;
+
+
+
+typedef enum {
+    XPOWERS_AXP2101_VBUS_VOL_LIM_3V88,
+    XPOWERS_AXP2101_VBUS_VOL_LIM_3V96,
+    XPOWERS_AXP2101_VBUS_VOL_LIM_4V04,
+    XPOWERS_AXP2101_VBUS_VOL_LIM_4V12,
+    XPOWERS_AXP2101_VBUS_VOL_LIM_4V20,
+    XPOWERS_AXP2101_VBUS_VOL_LIM_4V28,
+    XPOWERS_AXP2101_VBUS_VOL_LIM_4V36,
+    XPOWERS_AXP2101_VBUS_VOL_LIM_4V44,
+    XPOWERS_AXP2101_VBUS_VOL_LIM_4V52,
+    XPOWERS_AXP2101_VBUS_VOL_LIM_4V60,
+    XPOWERS_AXP2101_VBUS_VOL_LIM_4V68,
+    XPOWERS_AXP2101_VBUS_VOL_LIM_4V76,
+    XPOWERS_AXP2101_VBUS_VOL_LIM_4V84,
+    XPOWERS_AXP2101_VBUS_VOL_LIM_4V92,
+    XPOWERS_AXP2101_VBUS_VOL_LIM_5V,
+    XPOWERS_AXP2101_VBUS_VOL_LIM_5V08,
+} xpower_vbus_vol_limit_t;
 
 typedef enum {
     XPOWERS_AXP2101_VSYS_VOL_4V1,
@@ -274,7 +295,7 @@ public:
         return  getRegisterBit(XPOWERS_AXP2101_STATUS1, 1);
     }
 
-    bool getCurrentLimitStatus(void)
+    bool getCurrnetLimitStatus(void)
     {
         return getRegisterBit(XPOWERS_AXP2101_STATUS1, 0);
     }
@@ -467,13 +488,9 @@ public:
         return (val & 0x70) >> 4;
     }
 
-
-    /**
-     * @brief  Set VBUS Voltage Input Limit.
-     * @param  opt: View the related chip type xpowers_axp2101_vbus_vol_limit_t enumeration
-     *              parameters in "XPowersParams.hpp"
-     */
-    void setVbusVoltageLimit(uint8_t opt)
+    // Set the minimum common working voltage of the PMU VBUS input,
+    // below this value will turn off the PMU
+    void setVbusVoltageLimit(xpower_vbus_vol_limit_t opt)
     {
         int val = readRegister(XPOWERS_AXP2101_INPUT_VOL_LIMIT_CTRL);
         if (val == -1)return;
@@ -481,11 +498,6 @@ public:
         writeRegister(XPOWERS_AXP2101_INPUT_VOL_LIMIT_CTRL, val | (opt & 0x0F));
     }
 
-    /**
-    * @brief  Get VBUS Voltage Input Limit.
-    * @retval View the related chip type xpowers_axp2101_vbus_vol_limit_t enumeration
-    *              parameters in "XPowersParams.hpp"
-    */
     uint8_t getVbusVoltageLimit(void)
     {
         return (readRegister(XPOWERS_AXP2101_INPUT_VOL_LIMIT_CTRL) & 0x0F);
@@ -2764,7 +2776,7 @@ public:
         return false;
     }
 
-    bool isBatChargeDoneIrq(void)
+    bool isBatChagerDoneIrq(void)
     {
         uint8_t mask = XPOWERS_AXP2101_BAT_CHG_DONE_IRQ  >> 16;
         if (intRegister[2] & mask) {
@@ -2773,7 +2785,7 @@ public:
         return false;
     }
 
-    bool isBatChargeStartIrq(void)
+    bool isBatChagerStartIrq(void)
     {
         uint8_t mask = XPOWERS_AXP2101_BAT_CHG_START_IRQ  >> 16;
         if (intRegister[2] & mask) {
@@ -2791,7 +2803,7 @@ public:
         return false;
     }
 
-    bool isChargeOverTimeoutIrq(void)
+    bool isChagerOverTimeoutIrq(void)
     {
         uint8_t mask = XPOWERS_AXP2101_CHAGER_TIMER_IRQ  >> 16;
         if (intRegister[2] & mask) {

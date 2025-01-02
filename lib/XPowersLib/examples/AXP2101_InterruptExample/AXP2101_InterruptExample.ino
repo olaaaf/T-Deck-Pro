@@ -51,7 +51,7 @@ if there is any loss, please bear it by yourself
 #endif
 
 bool  pmu_flag = 0;
-XPowersPMU power;
+XPowersPMU PMU;
 
 
 const uint8_t i2c_sda = CONFIG_PMU_SDA;
@@ -67,13 +67,13 @@ void setup()
 {
     Serial.begin(115200);
 
-    bool result = power.begin(Wire, AXP2101_SLAVE_ADDRESS, i2c_sda, i2c_scl);
+    bool result = PMU.begin(Wire, AXP2101_SLAVE_ADDRESS, i2c_sda, i2c_scl);
 
     if (result == false) {
-        Serial.println("power is not online..."); while (1)delay(50);
+        Serial.println("PMU is not online..."); while (1)delay(50);
     }
 
-    Serial.printf("getID:0x%x\n", power.getChipID());
+    Serial.printf("getID:0x%x\n", PMU.getChipID());
 
     // Force add pull-up
     pinMode(pmu_irq_pin, INPUT_PULLUP);
@@ -81,16 +81,16 @@ void setup()
 
 
     // Disable all interrupts
-    power.disableIRQ(XPOWERS_AXP2101_ALL_IRQ);
+    PMU.disableIRQ(XPOWERS_AXP2101_ALL_IRQ);
 
     // Print interrupt register
-    power.printIntRegister(&Serial);
+    PMU.printIntRegister(&Serial);
 
     // Clear all interrupt flags
-    power.clearIrqStatus();
+    PMU.clearIrqStatus();
 
     // Enable the required interrupt function
-    // power.enableIRQ(
+    // PMU.enableIRQ(
     //     XPOWERS_AXP2101_BAT_INSERT_IRQ    | XPOWERS_AXP2101_BAT_REMOVE_IRQ      |   //BATTERY
     //     XPOWERS_AXP2101_VBUS_INSERT_IRQ   | XPOWERS_AXP2101_VBUS_REMOVE_IRQ     |   //VBUS
     //     XPOWERS_AXP2101_PKEY_SHORT_IRQ    | XPOWERS_AXP2101_PKEY_LONG_IRQ       |   //POWER KEY
@@ -98,17 +98,17 @@ void setup()
     //     // XPOWERS_AXP2101_PKEY_NEGATIVE_IRQ | XPOWERS_AXP2101_PKEY_POSITIVE_IRQ   |   //POWER KEY
     // );
 
-    power.enableIRQ(XPOWERS_AXP2101_BAT_NOR_UNDER_TEMP_IRQ);
+    PMU.enableIRQ(XPOWERS_AXP2101_BAT_NOR_UNDER_TEMP_IRQ);
     // Print AXP2101 interrupt control register
-    power.printIntRegister(&Serial);
+    PMU.printIntRegister(&Serial);
 
-    power.enableIRQ(XPOWERS_AXP2101_PKEY_SHORT_IRQ | XPOWERS_AXP2101_PKEY_NEGATIVE_IRQ);
+    PMU.enableIRQ(XPOWERS_AXP2101_PKEY_SHORT_IRQ | XPOWERS_AXP2101_PKEY_NEGATIVE_IRQ);
     // Print AXP2101 interrupt control register
-    power.printIntRegister(&Serial);
+    PMU.printIntRegister(&Serial);
 
-    power.enableIRQ(XPOWERS_AXP2101_BAT_OVER_VOL_IRQ);
+    PMU.enableIRQ(XPOWERS_AXP2101_BAT_OVER_VOL_IRQ);
     // Print AXP2101 interrupt control register
-    power.printIntRegister(&Serial);
+    PMU.printIntRegister(&Serial);
 
     // delay(30000);
 }
@@ -121,84 +121,84 @@ void loop()
         pmu_flag = false;
 
         // Get PMU Interrupt Status Register
-        uint32_t status = power.getIrqStatus();
+        uint32_t status = PMU.getIrqStatus();
         Serial.print("STATUS => HEX:");
         Serial.print(status, HEX);
         Serial.print(" BIN:");
         Serial.println(status, BIN);
 
-        if (power.isDropWarningLevel2Irq()) {
+        if (PMU.isDropWarningLevel2Irq()) {
             Serial.println("isDropWarningLevel2");
         }
-        if (power.isDropWarningLevel1Irq()) {
+        if (PMU.isDropWarningLevel1Irq()) {
             Serial.println("isDropWarningLevel1");
         }
-        if (power.isGaugeWdtTimeoutIrq()) {
+        if (PMU.isGaugeWdtTimeoutIrq()) {
             Serial.println("isWdtTimeout");
         }
-        if (power.isBatChargerOverTemperatureIrq()) {
+        if (PMU.isBatChargerOverTemperatureIrq()) {
             Serial.println("isBatChargeOverTemperature");
         }
-        if (power.isBatWorkOverTemperatureIrq()) {
+        if (PMU.isBatWorkOverTemperatureIrq()) {
             Serial.println("isBatWorkOverTemperature");
         }
-        if (power.isBatWorkUnderTemperatureIrq()) {
+        if (PMU.isBatWorkUnderTemperatureIrq()) {
             Serial.println("isBatWorkUnderTemperature");
         }
-        if (power.isVbusInsertIrq()) {
+        if (PMU.isVbusInsertIrq()) {
             Serial.println("isVbusInsert");
         }
-        if (power.isVbusRemoveIrq()) {
+        if (PMU.isVbusRemoveIrq()) {
             Serial.println("isVbusRemove");
         }
-        if (power.isBatInsertIrq()) {
+        if (PMU.isBatInsertIrq()) {
             Serial.println("isBatInsert");
         }
-        if (power.isBatRemoveIrq()) {
+        if (PMU.isBatRemoveIrq()) {
             Serial.println("isBatRemove");
         }
-        if (power.isPekeyShortPressIrq()) {
+        if (PMU.isPekeyShortPressIrq()) {
             Serial.println("isPekeyShortPress");
         }
-        if (power.isPekeyLongPressIrq()) {
+        if (PMU.isPekeyLongPressIrq()) {
             Serial.println("isPekeyLongPress");
         }
-        if (power.isPekeyNegativeIrq()) {
+        if (PMU.isPekeyNegativeIrq()) {
             Serial.println("isPekeyNegative");
         }
-        if (power.isPekeyPositiveIrq()) {
+        if (PMU.isPekeyPositiveIrq()) {
             Serial.println("isPekeyPositive");
         }
-        if (power.isWdtExpireIrq()) {
+        if (PMU.isWdtExpireIrq()) {
             Serial.println("isWdtExpire");
         }
-        if (power.isLdoOverCurrentIrq()) {
+        if (PMU.isLdoOverCurrentIrq()) {
             Serial.println("isLdoOverCurrentIrq");
         }
-        if (power.isBatfetOverCurrentIrq()) {
+        if (PMU.isBatfetOverCurrentIrq()) {
             Serial.println("isBatfetOverCurrentIrq");
         }
-        if (power.isBatChargeDoneIrq()) {
-            Serial.println("isBatChargeDone");
+        if (PMU.isBatChagerDoneIrq()) {
+            Serial.println("isBatChagerDone");
         }
-        if (power.isBatChargeStartIrq()) {
-            Serial.println("isBatChargeStart");
+        if (PMU.isBatChagerStartIrq()) {
+            Serial.println("isBatChagerStart");
         }
-        if (power.isBatDieOverTemperatureIrq()) {
+        if (PMU.isBatDieOverTemperatureIrq()) {
             Serial.println("isBatDieOverTemperature");
         }
-        if (power.isChargeOverTimeoutIrq()) {
-            Serial.println("isChargeOverTimeout");
+        if (PMU.isChagerOverTimeoutIrq()) {
+            Serial.println("isChagerOverTimeout");
         }
-        if (power.isBatOverVoltageIrq()) {
+        if (PMU.isBatOverVoltageIrq()) {
             Serial.println("isBatOverVoltage");
         }
 
         // Clear PMU Interrupt Status Register
-        power.clearIrqStatus();
+        PMU.clearIrqStatus();
 
         // Print AXP2101 interrupt control register
-        power.printIntRegister(&Serial);
+        PMU.printIntRegister(&Serial);
 
     }
     delay(10);

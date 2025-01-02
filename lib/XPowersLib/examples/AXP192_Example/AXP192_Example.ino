@@ -52,7 +52,7 @@ if there is any loss, please bear it by yourself
 #endif
 
 bool  pmu_flag = 0;
-XPowersPMU power;
+XPowersPMU PMU;
 
 const uint8_t i2c_sda = CONFIG_PMU_SDA;
 const uint8_t i2c_scl = CONFIG_PMU_SCL;
@@ -68,71 +68,71 @@ void setup()
 {
     Serial.begin(115200);
 
-    bool result = power.begin(Wire, AXP192_SLAVE_ADDRESS, i2c_sda, i2c_scl);
+    bool result = PMU.begin(Wire, AXP192_SLAVE_ADDRESS, i2c_sda, i2c_scl);
 
     if (result == false) {
-        Serial.println("power is not online..."); while (1)delay(50);
+        Serial.println("PMU is not online..."); while (1)delay(50);
     }
 
 
-    Serial.printf("getID:0x%x\n", power.getChipID());
+    Serial.printf("getID:0x%x\n", PMU.getChipID());
 
     // Set the minimum system operating voltage inside the PMU,
     // below this value will shut down the PMU
     // Range: 2600~3300mV
-    power.setSysPowerDownVoltage(2700);
+    PMU.setSysPowerDownVoltage(2700);
 
     // Set the minimum common working voltage of the PMU VBUS input,
     // below this value will turn off the PMU
-    power.setVbusVoltageLimit(XPOWERS_AXP192_VBUS_VOL_LIM_4V5);
+    PMU.setVbusVoltageLimit(XPOWERS_AXP192_VBUS_VOL_LIM_4V5);
 
     // Turn off USB input current limit
-    power.setVbusCurrentLimit(XPOWERS_AXP192_VBUS_CUR_LIM_OFF);
+    PMU.setVbusCurrentLimit(XPOWERS_AXP192_VBUS_CUR_LIM_OFF);
 
     // DC1 700~3500mV, IMAX=1.2A
-    power.setDC1Voltage(3300);
-    Serial.printf("DC1  :%s   Voltage:%u mV \n",  power.isEnableDC1()  ? "+" : "-", power.getDC1Voltage());
+    PMU.setDC1Voltage(3300);
+    Serial.printf("DC1  :%s   Voltage:%u mV \n",  PMU.isEnableDC1()  ? "+" : "-", PMU.getDC1Voltage());
 
     // DC2 700~2750 mV, IMAX=1.6A;
-    power.setDC2Voltage(700);
-    Serial.printf("DC2  :%s   Voltage:%u mV \n",  power.isEnableDC2()  ? "+" : "-", power.getDC2Voltage());
+    PMU.setDC2Voltage(700);
+    Serial.printf("DC2  :%s   Voltage:%u mV \n",  PMU.isEnableDC2()  ? "+" : "-", PMU.getDC2Voltage());
 
     // DC3 700~3500 mV,IMAX=0.7A;
-    power.setDC3Voltage(3300);
-    Serial.printf("DC3  :%s   Voltage:%u mV \n",  power.isEnableDC3()  ? "+" : "-", power.getDC3Voltage());
+    PMU.setDC3Voltage(3300);
+    Serial.printf("DC3  :%s   Voltage:%u mV \n",  PMU.isEnableDC3()  ? "+" : "-", PMU.getDC3Voltage());
 
 
     //LDO2 1800~3300 mV, 100mV/step, IMAX=200mA
-    power.setLDO2Voltage(1800);
+    PMU.setLDO2Voltage(1800);
 
     //LDO3 1800~3300 mV, 100mV/step, IMAX=200mA
-    power.setLDO3Voltage(1800);
+    PMU.setLDO3Voltage(1800);
 
     //LDOio 1800~3300 mV, 100mV/step, IMAX=50mA
-    power.setLDOioVoltage(3300);
+    PMU.setLDOioVoltage(3300);
 
 
-    // Enable PMU output channel
-    // power.enableDC1();
-    power.enableDC2();
-    power.enableDC3();
-    power.enableLDO2();
-    power.enableLDO3();
-    power.enableLDOio();
+    // Enable power output channel
+    // PMU.enableDC1();
+    PMU.enableDC2();
+    PMU.enableDC3();
+    PMU.enableLDO2();
+    PMU.enableLDO3();
+    PMU.enableLDOio();
 
     Serial.println("DCDC=======================================================================");
-    Serial.printf("DC1  :%s   Voltage:%u mV \n",  power.isEnableDC1()  ? "ENABLE" : "DISABLE", power.getDC1Voltage());
-    Serial.printf("DC2  :%s   Voltage:%u mV \n",  power.isEnableDC2()  ? "ENABLE" : "DISABLE", power.getDC2Voltage());
-    Serial.printf("DC3  :%s   Voltage:%u mV \n",  power.isEnableDC3()  ? "ENABLE" : "DISABLE", power.getDC3Voltage());
+    Serial.printf("DC1  :%s   Voltage:%u mV \n",  PMU.isEnableDC1()  ? "ENABLE" : "DISABLE", PMU.getDC1Voltage());
+    Serial.printf("DC2  :%s   Voltage:%u mV \n",  PMU.isEnableDC2()  ? "ENABLE" : "DISABLE", PMU.getDC2Voltage());
+    Serial.printf("DC3  :%s   Voltage:%u mV \n",  PMU.isEnableDC3()  ? "ENABLE" : "DISABLE", PMU.getDC3Voltage());
     Serial.println("LDO=======================================================================");
-    Serial.printf("LDO2: %s   Voltage:%u mV\n",  power.isEnableLDO2()  ? "ENABLE" : "DISABLE", power.getLDO2Voltage());
-    Serial.printf("LDO3: %s   Voltage:%u mV\n",  power.isEnableLDO3()  ? "ENABLE" : "DISABLE", power.getLDO3Voltage());
-    Serial.printf("LDOio: %s   Voltage:%u mV\n",  power.isEnableLDOio()  ? "ENABLE" : "DISABLE", power.getLDOioVoltage());
+    Serial.printf("LDO2: %s   Voltage:%u mV\n",  PMU.isEnableLDO2()  ? "ENABLE" : "DISABLE", PMU.getLDO2Voltage());
+    Serial.printf("LDO3: %s   Voltage:%u mV\n",  PMU.isEnableLDO3()  ? "ENABLE" : "DISABLE", PMU.getLDO3Voltage());
+    Serial.printf("LDOio: %s   Voltage:%u mV\n",  PMU.isEnableLDOio()  ? "ENABLE" : "DISABLE", PMU.getLDOioVoltage());
     Serial.println("==========================================================================");
 
     // Set the time of pressing the button to turn off
-    power.setPowerKeyPressOffTime(XPOWERS_AXP192_POWEROFF_4S);
-    uint8_t opt = power.getPowerKeyPressOffTime();
+    PMU.setPowerKeyPressOffTime(XPOWERS_AXP192_POWEROFF_4S);
+    uint8_t opt = PMU.getPowerKeyPressOffTime();
     Serial.print("PowerKeyPressOffTime:");
     switch (opt) {
     case XPOWERS_AXP192_POWEROFF_4S: Serial.println("4 Second");
@@ -147,8 +147,8 @@ void setup()
         break;
     }
     // Set the button power-on press time
-    power.setPowerKeyPressOnTime(XPOWERS_POWERON_128MS);
-    opt = power.getPowerKeyPressOnTime();
+    PMU.setPowerKeyPressOnTime(XPOWERS_POWERON_128MS);
+    opt = PMU.getPowerKeyPressOnTime();
     Serial.print("PowerKeyPressOnTime:");
     switch (opt) {
     case XPOWERS_POWERON_128MS: Serial.println("128 Ms");
@@ -167,16 +167,16 @@ void setup()
 
     // It is necessary to disable the detection function of the TS pin on the board
     // without the battery temperature detection function, otherwise it will cause abnormal charging
-    power.disableTSPinMeasure();
+    PMU.disableTSPinMeasure();
 
-    // power.enableTemperatureMeasure();
-    // power.disableTemperatureMeasure();
+    // PMU.enableTemperatureMeasure();
+    // PMU.disableTemperatureMeasure();
 
     // Enable internal ADC detection
-    power.enableBattDetection();
-    power.enableVbusVoltageMeasure();
-    power.enableBattVoltageMeasure();
-    power.enableSystemVoltageMeasure();
+    PMU.enableBattDetection();
+    PMU.enableVbusVoltageMeasure();
+    PMU.enableBattVoltageMeasure();
+    PMU.enableSystemVoltageMeasure();
 
     /*
       The default setting is CHGLED is automatically controlled by the PMU.
@@ -186,18 +186,18 @@ void setup()
     - XPOWERS_CHG_LED_ON,
     - XPOWERS_CHG_LED_CTRL_CHG,
     * */
-    power.setChargingLedMode(XPOWERS_CHG_LED_OFF);
+    PMU.setChargingLedMode(XPOWERS_CHG_LED_OFF);
 
 
     pinMode(pmu_irq_pin, INPUT);
     attachInterrupt(pmu_irq_pin, setFlag, FALLING);
 
     // Disable all interrupts
-    power.disableIRQ(XPOWERS_AXP192_ALL_IRQ);
+    PMU.disableIRQ(XPOWERS_AXP192_ALL_IRQ);
     // Clear all interrupt flags
-    power.clearIrqStatus();
+    PMU.clearIrqStatus();
     // Enable the required interrupt function
-    power.enableIRQ(
+    PMU.enableIRQ(
         XPOWERS_AXP192_BAT_INSERT_IRQ    | XPOWERS_AXP192_BAT_REMOVE_IRQ      |   //BATTERY
         XPOWERS_AXP192_VBUS_INSERT_IRQ   | XPOWERS_AXP192_VBUS_REMOVE_IRQ     |   //VBUS
         XPOWERS_AXP192_PKEY_SHORT_IRQ    | XPOWERS_AXP192_PKEY_LONG_IRQ       |   //POWER KEY
@@ -207,21 +207,21 @@ void setup()
     );
 
     // Set constant current charge current limit
-    power.setChargerConstantCurr(XPOWERS_AXP192_CHG_CUR_280MA);
+    PMU.setChargerConstantCurr(XPOWERS_AXP192_CHG_CUR_280MA);
     // Set stop charging termination current
-    power.setChargerTerminationCurr(XPOWERS_AXP192_CHG_ITERM_LESS_10_PERCENT);
+    PMU.setChargerTerminationCurr(XPOWERS_AXP192_CHG_ITERM_LESS_10_PERCENT);
 
     // Set charge cut-off voltage
-    power.setChargeTargetVoltage(XPOWERS_AXP192_CHG_VOL_4V2);
+    PMU.setChargeTargetVoltage(XPOWERS_AXP192_CHG_VOL_4V2);
 
     // Cache writes and reads, as long as the PMU remains powered, the data will always be stored inside the PMU
     Serial.println("Write pmu data buffer .");
     uint8_t data[XPOWERS_AXP192_DATA_BUFFER_SIZE] = {1, 2, 3, 4, 5, 6};
-    power.writeDataBuffer(data, XPOWERS_AXP192_DATA_BUFFER_SIZE);
+    PMU.writeDataBuffer(data, XPOWERS_AXP192_DATA_BUFFER_SIZE);
     memset(data, 0, XPOWERS_AXP192_DATA_BUFFER_SIZE);
 
     Serial.print("Read pmu data buffer :");
-    power.readDataBuffer(data, XPOWERS_AXP192_DATA_BUFFER_SIZE);
+    PMU.readDataBuffer(data, XPOWERS_AXP192_DATA_BUFFER_SIZE);
     for (int i = 0; i < XPOWERS_AXP192_DATA_BUFFER_SIZE; ++i) {
         Serial.print(data[i]);
         Serial.print(",");
@@ -229,21 +229,21 @@ void setup()
     Serial.println();
 
     // Set the timing after one minute, the isWdtExpireIrq will be triggered in the loop interrupt function
-    power.setTimerout(1);
+    PMU.setTimerout(1);
 }
 
 void printPMU()
 {
-    Serial.print("isCharging:"); Serial.println(power.isCharging() ? "YES" : "NO");
-    Serial.print("isDischarge:"); Serial.println(power.isDischarge() ? "YES" : "NO");
-    Serial.print("isVbusIn:"); Serial.println(power.isVbusIn() ? "YES" : "NO");
-    Serial.print("getBattVoltage:"); Serial.print(power.getBattVoltage()); Serial.println("mV");
-    Serial.print("getVbusVoltage:"); Serial.print(power.getVbusVoltage()); Serial.println("mV");
-    Serial.print("getSystemVoltage:"); Serial.print(power.getSystemVoltage()); Serial.println("mV");
-    Serial.print("getTemperature:"); Serial.print(power.getTemperature()); Serial.println("*C");
+    Serial.print("isCharging:"); Serial.println(PMU.isCharging() ? "YES" : "NO");
+    Serial.print("isDischarge:"); Serial.println(PMU.isDischarge() ? "YES" : "NO");
+    Serial.print("isVbusIn:"); Serial.println(PMU.isVbusIn() ? "YES" : "NO");
+    Serial.print("getBattVoltage:"); Serial.print(PMU.getBattVoltage()); Serial.println("mV");
+    Serial.print("getVbusVoltage:"); Serial.print(PMU.getVbusVoltage()); Serial.println("mV");
+    Serial.print("getSystemVoltage:"); Serial.print(PMU.getSystemVoltage()); Serial.println("mV");
+    Serial.print("getTemperature:"); Serial.print(PMU.getTemperature()); Serial.println("*C");
 
-    if (power.isBatteryConnect()) {
-        Serial.print("getBatteryPercent:"); Serial.print(power.getBatteryPercent()); Serial.println("%");
+    if (PMU.isBatteryConnect()) {
+        Serial.print("getBatteryPercent:"); Serial.print(PMU.getBatteryPercent()); Serial.println("%");
     }
 
     Serial.println();
@@ -254,16 +254,16 @@ void printPMU()
 void enterPmuSleep(void)
 {
     // Set sleep flag
-    power.enableSleep();
+    PMU.enableSleep();
 
-    power.disableDC2();
-    power.disableDC3();
+    PMU.disableDC2();
+    PMU.disableDC3();
 
-    power.disableLDO2();
-    power.disableLDO3();
+    PMU.disableLDO2();
+    PMU.disableLDO3();
 
     // Finally, turn off the power of the control chip
-    power.disableDC1();
+    PMU.disableDC1();
 }
 
 void loop()
@@ -273,129 +273,129 @@ void loop()
         pmu_flag = false;
 
         // Get PMU Interrupt Status Register
-        uint32_t status = power.getIrqStatus();
+        uint32_t status = PMU.getIrqStatus();
         Serial.print("STATUS => HEX:");
         Serial.print(status, HEX);
         Serial.print(" BIN:");
         Serial.println(status, BIN);
 
-        if (power.isAcinOverVoltageIrq()) {
+        if (PMU.isAcinOverVoltageIrq()) {
             Serial.println("isAcinOverVoltageIrq");
         }
-        if (power.isAcinInserIrq()) {
+        if (PMU.isAcinInserIrq()) {
             Serial.println("isAcinInserIrq");
         }
-        if (power.isAcinRemoveIrq()) {
+        if (PMU.isAcinRemoveIrq()) {
             Serial.println("isAcinRemoveIrq");
         }
-        if (power.isVbusOverVoltageIrq()) {
+        if (PMU.isVbusOverVoltageIrq()) {
             Serial.println("isVbusOverVoltageIrq");
         }
-        if (power.isVbusInsertIrq()) {
+        if (PMU.isVbusInsertIrq()) {
             Serial.println("isVbusInsertIrq");
         }
-        if (power.isVbusRemoveIrq()) {
+        if (PMU.isVbusRemoveIrq()) {
             Serial.println("isVbusRemoveIrq");
         }
-        if (power.isVbusLowVholdIrq()) {
+        if (PMU.isVbusLowVholdIrq()) {
             Serial.println("isVbusLowVholdIrq");
         }
-        if (power.isBatInsertIrq()) {
+        if (PMU.isBatInsertIrq()) {
             Serial.println("isBatInsertIrq");
         }
-        if (power.isBatRemoveIrq()) {
+        if (PMU.isBatRemoveIrq()) {
             Serial.println("isBatRemoveIrq");
         }
-        if (power.isBattEnterActivateIrq()) {
+        if (PMU.isBattEnterActivateIrq()) {
             Serial.println("isBattEnterActivateIrq");
         }
-        if (power.isBattExitActivateIrq()) {
+        if (PMU.isBattExitActivateIrq()) {
             Serial.println("isBattExitActivateIrq");
         }
-        if (power.isBatChargeStartIrq()) {
-            Serial.println("isBatChargeStartIrq");
+        if (PMU.isBatChagerStartIrq()) {
+            Serial.println("isBatChagerStartIrq");
         }
-        if (power.isBatChargeDoneIrq()) {
-            Serial.println("isBatChargeDoneIrq");
+        if (PMU.isBatChagerDoneIrq()) {
+            Serial.println("isBatChagerDoneIrq");
         }
-        if (power.isBattTempHighIrq()) {
+        if (PMU.isBattTempHighIrq()) {
             Serial.println("isBattTempHighIrq");
         }
-        if (power.isBattTempLowIrq()) {
+        if (PMU.isBattTempLowIrq()) {
             Serial.println("isBattTempLowIrq");
         }
-        if (power.isChipOverTemperatureIrq()) {
+        if (PMU.isChipOverTemperatureIrq()) {
             Serial.println("isChipOverTemperatureIrq");
         }
-        if (power.isChargingCurrentLessIrq()) {
+        if (PMU.isChargingCurrentLessIrq()) {
             Serial.println("isChargingCurrentLessIrq");
         }
-        if (power.isDC1VoltageLessIrq()) {
+        if (PMU.isDC1VoltageLessIrq()) {
             Serial.println("isDC1VoltageLessIrq");
         }
-        if (power.isDC2VoltageLessIrq()) {
+        if (PMU.isDC2VoltageLessIrq()) {
             Serial.println("isDC2VoltageLessIrq");
         }
-        if (power.isDC3VoltageLessIrq()) {
+        if (PMU.isDC3VoltageLessIrq()) {
             Serial.println("isDC3VoltageLessIrq");
         }
-        if (power.isPekeyShortPressIrq()) {
+        if (PMU.isPekeyShortPressIrq()) {
             Serial.println("isPekeyShortPress");
 
             // enterPmuSleep();
 
             //CHG LED mode test
-            uint8_t m =  power.getChargingLedMode();
+            uint8_t m =  PMU.getChargingLedMode();
             Serial.print("getChargingLedMode:");
             Serial.println(m++);
             m %= XPOWERS_CHG_LED_CTRL_CHG;
             Serial.printf("setChargingLedMode:%u", m);
-            power.setChargingLedMode(m);
+            PMU.setChargingLedMode(m);
 
         }
-        if (power.isPekeyLongPressIrq()) {
+        if (PMU.isPekeyLongPressIrq()) {
             Serial.println("isPekeyLongPress");
 
         }
-        if (power.isNOEPowerOnIrq()) {
+        if (PMU.isNOEPowerOnIrq()) {
             Serial.println("isNOEPowerOnIrq");
         }
-        if (power.isNOEPowerDownIrq()) {
+        if (PMU.isNOEPowerDownIrq()) {
             Serial.println("isNOEPowerDownIrq");
         }
-        if (power.isVbusEffectiveIrq()) {
+        if (PMU.isVbusEffectiveIrq()) {
             Serial.println("isVbusEffectiveIrq");
         }
-        if (power.isVbusInvalidIrq()) {
+        if (PMU.isVbusInvalidIrq()) {
             Serial.println("isVbusInvalidIrq");
         }
-        if (power.isVbusSessionIrq()) {
+        if (PMU.isVbusSessionIrq()) {
             Serial.println("isVbusSessionIrq");
         }
-        if (power.isVbusSessionEndIrq()) {
+        if (PMU.isVbusSessionEndIrq()) {
             Serial.println("isVbusSessionEndIrq");
         }
-        if (power.isLowVoltageLevel2Irq()) {
+        if (PMU.isLowVoltageLevel2Irq()) {
             Serial.println("isLowVoltageLevel2Irq");
         }
-        if (power.isWdtExpireIrq()) {
+        if (PMU.isWdtExpireIrq()) {
             Serial.println("isWdtExpire");
 
             printPMU();
             // Clear the timer state and continue to the next timer
-            power.clearTimerFlag();
+            PMU.clearTimerFlag();
         }
-        if (power.isGpio2EdgeTriggerIrq()) {
+        if (PMU.isGpio2EdgeTriggerIrq()) {
             Serial.println("isGpio2EdgeTriggerIrq");
         }
-        if (power.isGpio1EdgeTriggerIrq()) {
+        if (PMU.isGpio1EdgeTriggerIrq()) {
             Serial.println("isGpio1EdgeTriggerIrq");
         }
-        if (power.isGpio0EdgeTriggerIrq()) {
+        if (PMU.isGpio0EdgeTriggerIrq()) {
             Serial.println("isGpio0EdgeTriggerIrq");
         }
         // Clear PMU Interrupt Status Register
-        power.clearIrqStatus();
+        PMU.clearIrqStatus();
 
     }
     delay(10);

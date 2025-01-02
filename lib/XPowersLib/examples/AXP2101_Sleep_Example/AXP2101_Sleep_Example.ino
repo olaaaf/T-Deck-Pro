@@ -56,7 +56,7 @@ if there is any loss, please bear it by yourself
 #define CONFIG_PMU_IRQ 6
 #endif
 
-XPowersPMU power;
+XPowersPMU PMU;
 
 const uint8_t i2c_sda = CONFIG_PMU_SDA;
 const uint8_t i2c_scl = CONFIG_PMU_SCL;
@@ -74,7 +74,7 @@ void setup()
 {
     Serial.begin(115200);
 
-    bool result = power.begin(Wire, AXP2101_SLAVE_ADDRESS, i2c_sda, i2c_scl);
+    bool result = PMU.begin(Wire, AXP2101_SLAVE_ADDRESS, i2c_sda, i2c_scl);
 
     if (result == false) {
         Serial.println("PMU is not online..."); while (1)delay(50);
@@ -85,19 +85,19 @@ void setup()
     attachInterrupt(pmu_irq_pin, setFlag, FALLING);
 
     // Close other IRQs
-    power.disableIRQ(XPOWERS_AXP2101_ALL_IRQ);
+    PMU.disableIRQ(XPOWERS_AXP2101_ALL_IRQ);
     // Clear all interrupt flags
-    power.clearIrqStatus();
+    PMU.clearIrqStatus();
     // Enable the required interrupt function
-    power.enableIRQ(
+    PMU.enableIRQ(
         XPOWERS_AXP2101_PKEY_SHORT_IRQ    //POWER KEY
     );
 
     // Turn on the charging indicator light as a power-on indicator
-    power.setChargingLedMode(XPOWERS_CHG_LED_ON);
+    PMU.setChargingLedMode(XPOWERS_CHG_LED_ON);
 
     // Enable chip temperature detection
-    power.enableTemperatureMeasure();
+    PMU.enableTemperatureMeasure();
 }
 
 
@@ -107,47 +107,47 @@ void loop()
     if (pmu_flag) {
         pmu_flag = false;
         // Get PMU Interrupt Status Register
-        uint32_t status = power.getIrqStatus();
-        if (power.isPekeyShortPressIrq()) {
+        uint32_t status = PMU.getIrqStatus();
+        if (PMU.isPekeyShortPressIrq()) {
 
             // Turn off the charging indicator to save power
-            power.setChargingLedMode(XPOWERS_CHG_LED_OFF);
+            PMU.setChargingLedMode(XPOWERS_CHG_LED_OFF);
 
             // Turn off ADC data monitoring to save power
-            power.disableTemperatureMeasure();
+            PMU.disableTemperatureMeasure();
             // Enable internal ADC detection
-            power.disableBattDetection();
-            power.disableVbusVoltageMeasure();
-            power.disableBattVoltageMeasure();
-            power.disableSystemVoltageMeasure();
+            PMU.disableBattDetection();
+            PMU.disableVbusVoltageMeasure();
+            PMU.disableBattVoltageMeasure();
+            PMU.disableSystemVoltageMeasure();
 
 
             // Enable PMU sleep
-            power.enableSleep();
+            PMU.enableSleep();
 
             // Reserve the MCU chip power supply, LilyGo AXP2101 usually uses DC as ESP power supply
-            // power.enableDC1();
+            // PMU.enableDC1();
 
             // Turn off the power output of other channels
-            power.disableDC2();
-            power.disableDC3();
-            power.disableDC4();
-            power.disableDC5();
-            power.disableALDO1();
-            power.disableALDO2();
-            power.disableALDO3();
-            power.disableALDO4();
-            power.disableBLDO1();
-            power.disableBLDO2();
-            power.disableCPUSLDO();
-            power.disableDLDO1();
-            power.disableDLDO2();
+            PMU.disableDC2();
+            PMU.disableDC3();
+            PMU.disableDC4();
+            PMU.disableDC5();
+            PMU.disableALDO1();
+            PMU.disableALDO2();
+            PMU.disableALDO3();
+            PMU.disableALDO4();
+            PMU.disableBLDO1();
+            PMU.disableBLDO2();
+            PMU.disableCPUSLDO();
+            PMU.disableDLDO1();
+            PMU.disableDLDO2();
 
             // Clear PMU Interrupt Status Register
-            power.clearIrqStatus();
+            PMU.clearIrqStatus();
 
             // Send IRQ wakeup command
-            power.enableWakeup();
+            PMU.enableWakeup();
 
 #if !CONFIG_IDF_TARGET_ESP32S3
             Serial.println("Please implement the MCU sleep method");
@@ -164,7 +164,7 @@ void loop()
     }
 
     // When not sleeping, print PMU temperature
-    Serial.print("power Temperature:"); Serial.print(power.getTemperature()); Serial.println("*C");
+    Serial.print("PMU Temperature:"); Serial.print(PMU.getTemperature()); Serial.println("*C");
     delay(1000);
 }
 

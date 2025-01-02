@@ -51,7 +51,7 @@ if there is any loss, please bear it by yourself
 #endif
 
 bool  pmu_flag = 0;
-XPowersPMU power;
+XPowersPMU PMU;
 
 const uint8_t i2c_sda = CONFIG_PMU_SDA;
 const uint8_t i2c_scl = CONFIG_PMU_SCL;
@@ -67,41 +67,41 @@ void setup()
 {
     Serial.begin(115200);
 
-    bool result = power.begin(Wire, AXP2101_SLAVE_ADDRESS, i2c_sda, i2c_scl);
+    bool result = PMU.begin(Wire, AXP2101_SLAVE_ADDRESS, i2c_sda, i2c_scl);
 
     if (result == false) {
-        Serial.println("power is not online..."); while (1)delay(50);
+        Serial.println("PMU is not online..."); while (1)delay(50);
     }
 
-    Serial.printf("getID:0x%x\n", power.getChipID());
+    Serial.printf("getID:0x%x\n", PMU.getChipID());
 
     // Set the minimum common working voltage of the PMU VBUS input,
     // below this value will turn off the PMU
-    power.setVbusVoltageLimit(XPOWERS_AXP2101_VBUS_VOL_LIM_4V36);
+    PMU.setVbusVoltageLimit(XPOWERS_AXP2101_VBUS_VOL_LIM_4V36);
 
     // Set the maximum current of the PMU VBUS input,
     // higher than this value will turn off the PMU
-    power.setVbusCurrentLimit(XPOWERS_AXP2101_VBUS_CUR_LIM_1500MA);
+    PMU.setVbusCurrentLimit(XPOWERS_AXP2101_VBUS_CUR_LIM_1500MA);
 
 
     // Get the VSYS shutdown voltage
-    uint16_t vol = power.getSysPowerDownVoltage();
+    uint16_t vol = PMU.getSysPowerDownVoltage();
     Serial.printf("->  getSysPowerDownVoltage:%u\n", vol);
 
     // Set VSY off voltage as 2600mV , Adjustment range 2600mV ~ 3300mV
-    power.setSysPowerDownVoltage(2600);
+    PMU.setSysPowerDownVoltage(2600);
 
     // It is necessary to disable the detection function of the TS pin on the board
     // without the battery temperature detection function, otherwise it will cause abnormal charging
-    power.disableTSPinMeasure();
+    PMU.disableTSPinMeasure();
 
-    // power.enableTemperatureMeasure();
+    // PMU.enableTemperatureMeasure();
 
     // Enable internal ADC detection
-    power.enableBattDetection();
-    power.enableVbusVoltageMeasure();
-    power.enableBattVoltageMeasure();
-    power.enableSystemVoltageMeasure();
+    PMU.enableBattDetection();
+    PMU.enableVbusVoltageMeasure();
+    PMU.enableBattVoltageMeasure();
+    PMU.enableSystemVoltageMeasure();
 
     /*
       The default setting is CHGLED is automatically controlled by the PMU.
@@ -111,7 +111,7 @@ void setup()
     - XPOWERS_CHG_LED_ON,
     - XPOWERS_CHG_LED_CTRL_CHG,
     * */
-    power.setChargingLedMode(XPOWERS_CHG_LED_CTRL_CHG);
+    PMU.setChargingLedMode(XPOWERS_CHG_LED_CTRL_CHG);
 
 
     // Force add pull-up
@@ -120,11 +120,11 @@ void setup()
 
 
     // Disable all interrupts
-    power.disableIRQ(XPOWERS_AXP2101_ALL_IRQ);
+    PMU.disableIRQ(XPOWERS_AXP2101_ALL_IRQ);
     // Clear all interrupt flags
-    power.clearIrqStatus();
+    PMU.clearIrqStatus();
     // Enable the required interrupt function
-    power.enableIRQ(
+    PMU.enableIRQ(
         XPOWERS_AXP2101_BAT_INSERT_IRQ    | XPOWERS_AXP2101_BAT_REMOVE_IRQ      |   //BATTERY
         XPOWERS_AXP2101_VBUS_INSERT_IRQ   | XPOWERS_AXP2101_VBUS_REMOVE_IRQ     |   //VBUS
         XPOWERS_AXP2101_PKEY_SHORT_IRQ    | XPOWERS_AXP2101_PKEY_LONG_IRQ       |   //POWER KEY
@@ -134,47 +134,47 @@ void setup()
     );
 
     // Set the precharge charging current
-    power.setPrechargeCurr(XPOWERS_AXP2101_PRECHARGE_200MA);
+    PMU.setPrechargeCurr(XPOWERS_AXP2101_PRECHARGE_200MA);
 
 
     // Set stop charging termination current
-    power.setChargerTerminationCurr(XPOWERS_AXP2101_CHG_ITERM_25MA);
+    PMU.setChargerTerminationCurr(XPOWERS_AXP2101_CHG_ITERM_25MA);
 
 
     // Set constant current charge current limit
-    if (!power.setChargerConstantCurr(XPOWERS_AXP2101_CHG_CUR_1000MA)) {
+    if (!PMU.setChargerConstantCurr(XPOWERS_AXP2101_CHG_CUR_1000MA)) {
         Serial.println("Setting Charger Constant Current Failed!");
     }
 
     const uint16_t currTable[] = {
         0, 0, 0, 0, 100, 125, 150, 175, 200, 300, 400, 500, 600, 700, 800, 900, 1000
     };
-    uint8_t val = power.getChargerConstantCurr();
+    uint8_t val = PMU.getChargerConstantCurr();
     Serial.print("Setting Charge Target Current : ");
     Serial.println(currTable[val]);
 
     // Set charge cut-off voltage
-    power.setChargeTargetVoltage(XPOWERS_AXP2101_CHG_VOL_4V2);
+    PMU.setChargeTargetVoltage(XPOWERS_AXP2101_CHG_VOL_4V2);
 
     const uint16_t tableVoltage[] = {
         0, 4000, 4100, 4200, 4350, 4400, 255
     };
-    val = power.getChargeTargetVoltage();
+    val = PMU.getChargeTargetVoltage();
     Serial.print("Setting Charge Target Voltage : ");
     Serial.println(tableVoltage[val]);
 
 
     // Set the power level to be lower than 15% and send an interrupt to the host`
-    power.setLowBatWarnThreshold(10);
+    PMU.setLowBatWarnThreshold(10);
 
     // Set the power level to be lower than 5% and turn off the power supply
-    power.setLowBatShutdownThreshold(5);
+    PMU.setLowBatShutdownThreshold(5);
 
     /*
     Turn on the learning battery curve,
     And write the learned battery curve into the ROM
     */
-    power.fuelGaugeControl(true, true);
+    PMU.fuelGaugeControl(true, true);
 
     Serial.println();
 
@@ -187,24 +187,24 @@ void printPMU()
     Serial.println("Satus1  Satus2  CHARG   DISC   STBY    VBUSIN    VGOOD    VBAT   VBUS   VSYS   Percentage    CHG_STATUS");
     Serial.println("(Bin)   (Bin)   (bool)  (bool) (bool)  (bool)    (bool)   (mV)   (mV)   (mV)      (%)           (str)  ");
     Serial.println("---------------------------------------------------------------------------------------------------------");
-    uint16_t statusVal =  power.status();
+    uint16_t statusVal =  PMU.status();
     Serial.print("0b"); Serial.print(statusVal >> 8, BIN); Serial.print("\t");
     Serial.print("0b"); Serial.print(statusVal & 0xFF, BIN); Serial.print("\t");
-    Serial.print(power.isCharging() ? "YES" : "NO "); Serial.print("\t");
-    Serial.print(power.isDischarge() ? "YES" : "NO "); Serial.print("\t");
-    Serial.print(power.isStandby() ? "YES" : "NO "); Serial.print("\t");
-    Serial.print(power.isVbusIn() ? "YES" : "NO "); Serial.print("\t");
-    Serial.print(power.isVbusGood() ? "YES" : "NO "); Serial.print("\t");
-    Serial.print(power.getBattVoltage());     Serial.print("\t");
-    Serial.print(power.getVbusVoltage());     Serial.print("\t");
-    Serial.print(power.getSystemVoltage());   Serial.print("\t");
+    Serial.print(PMU.isCharging() ? "YES" : "NO "); Serial.print("\t");
+    Serial.print(PMU.isDischarge() ? "YES" : "NO "); Serial.print("\t");
+    Serial.print(PMU.isStandby() ? "YES" : "NO "); Serial.print("\t");
+    Serial.print(PMU.isVbusIn() ? "YES" : "NO "); Serial.print("\t");
+    Serial.print(PMU.isVbusGood() ? "YES" : "NO "); Serial.print("\t");
+    Serial.print(PMU.getBattVoltage());     Serial.print("\t");
+    Serial.print(PMU.getVbusVoltage());     Serial.print("\t");
+    Serial.print(PMU.getSystemVoltage());   Serial.print("\t");
 
     // The battery percentage may be inaccurate at first use, the PMU will automatically
     // learn the battery curve and will automatically calibrate the battery percentage
     // after a charge and discharge cycle
-    Serial.print(power.getBatteryPercent()); Serial.print("\t");
+    Serial.print(PMU.getBatteryPercent()); Serial.print("\t");
 
-    uint8_t charge_status = power.getChargerStatus();
+    uint8_t charge_status = PMU.getChargerStatus();
     if (charge_status == XPOWERS_AXP2101_CHG_TRI_STATE) {
         Serial.println("tri_charge");
     } else if (charge_status == XPOWERS_AXP2101_CHG_PRE_STATE) {
@@ -216,7 +216,7 @@ void printPMU()
     } else if (charge_status == XPOWERS_AXP2101_CHG_DONE_STATE) {
         Serial.println("charge done");
     } else if (charge_status == XPOWERS_AXP2101_CHG_STOP_STATE) {
-        Serial.println("not charge");
+        Serial.println("not chargin");
     }
     Serial.println();
 
@@ -237,88 +237,88 @@ void loop()
         pmu_flag = false;
 
         // Get PMU Interrupt Status Register
-        uint32_t status = power.getIrqStatus();
+        uint32_t status = PMU.getIrqStatus();
         Serial.print("STATUS => HEX:");
         Serial.print(status, HEX);
         Serial.print(" BIN:");
         Serial.println(status, BIN);
 
-        if (power.isDropWarningLevel2Irq()) {
+        if (PMU.isDropWarningLevel2Irq()) {
             Serial.println("isDropWarningLevel2");
         }
-        if (power.isDropWarningLevel1Irq()) {
+        if (PMU.isDropWarningLevel1Irq()) {
             Serial.println(" >>>>   isDropWarningLevel1 <<<<");
-            power.shutdown();
+            PMU.shutdown();
         }
-        if (power.isGaugeWdtTimeoutIrq()) {
+        if (PMU.isGaugeWdtTimeoutIrq()) {
             Serial.println("isWdtTimeout");
         }
-        if (power.isBatChargerOverTemperatureIrq()) {
+        if (PMU.isBatChargerOverTemperatureIrq()) {
             Serial.println("isBatChargeOverTemperature");
         }
-        if (power.isBatWorkOverTemperatureIrq()) {
+        if (PMU.isBatWorkOverTemperatureIrq()) {
             Serial.println("isBatWorkOverTemperature");
         }
-        if (power.isBatWorkUnderTemperatureIrq()) {
+        if (PMU.isBatWorkUnderTemperatureIrq()) {
             Serial.println("isBatWorkUnderTemperature");
         }
-        if (power.isVbusInsertIrq()) {
+        if (PMU.isVbusInsertIrq()) {
             Serial.println("isVbusInsert");
-            uint8_t val = power.getVbusCurrentLimit();
+            uint8_t val = PMU.getVbusCurrentLimit();
             Serial.print("Get Vbus Current Limit = "); Serial.println(val);
         }
-        if (power.isVbusRemoveIrq()) {
+        if (PMU.isVbusRemoveIrq()) {
             Serial.println("isVbusRemove");
-            uint8_t val = power.getVbusCurrentLimit();
+            uint8_t val = PMU.getVbusCurrentLimit();
             Serial.print("Get Vbus Current Limit = "); Serial.println(val);
         }
-        if (power.isBatInsertIrq()) {
+        if (PMU.isBatInsertIrq()) {
             Serial.println("isBatInsert");
         }
-        if (power.isBatRemoveIrq()) {
+        if (PMU.isBatRemoveIrq()) {
             Serial.println("isBatRemove");
         }
 
-        if (power.isPekeyShortPressIrq()) {
+        if (PMU.isPekeyShortPressIrq()) {
             Serial.println("isPekeyShortPress");
         }
 
-        if (power.isPekeyLongPressIrq()) {
+        if (PMU.isPekeyLongPressIrq()) {
             Serial.println("isPekeyLongPress");
         }
 
-        if (power.isPekeyNegativeIrq()) {
+        if (PMU.isPekeyNegativeIrq()) {
             Serial.println("isPekeyNegative");
         }
-        if (power.isPekeyPositiveIrq()) {
+        if (PMU.isPekeyPositiveIrq()) {
             Serial.println("isPekeyPositive");
         }
-        if (power.isWdtExpireIrq()) {
+        if (PMU.isWdtExpireIrq()) {
             Serial.println("isWdtExpire");
         }
-        if (power.isLdoOverCurrentIrq()) {
+        if (PMU.isLdoOverCurrentIrq()) {
             Serial.println("isLdoOverCurrentIrq");
         }
-        if (power.isBatfetOverCurrentIrq()) {
+        if (PMU.isBatfetOverCurrentIrq()) {
             Serial.println("isBatfetOverCurrentIrq");
         }
-        if (power.isBatChargeDoneIrq()) {
-            Serial.println("isBatChargeDone");
+        if (PMU.isBatChagerDoneIrq()) {
+            Serial.println("isBatChagerDone");
         }
-        if (power.isBatChargeStartIrq()) {
-            Serial.println("isBatChargeStart");
+        if (PMU.isBatChagerStartIrq()) {
+            Serial.println("isBatChagerStart");
         }
-        if (power.isBatDieOverTemperatureIrq()) {
+        if (PMU.isBatDieOverTemperatureIrq()) {
             Serial.println("isBatDieOverTemperature");
         }
-        if (power.isChargeOverTimeoutIrq()) {
-            Serial.println("isChargeOverTimeout");
+        if (PMU.isChagerOverTimeoutIrq()) {
+            Serial.println("isChagerOverTimeout");
         }
-        if (power.isBatOverVoltageIrq()) {
+        if (PMU.isBatOverVoltageIrq()) {
             Serial.println("isBatOverVoltage");
         }
         // Clear PMU Interrupt Status Register
-        power.clearIrqStatus();
+        PMU.clearIrqStatus();
 
     }
     delay(10);
