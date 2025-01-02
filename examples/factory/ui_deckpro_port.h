@@ -85,7 +85,8 @@ void ui_wifi_get_scan_info(ui_wifi_scan_info_t *list, int list_len);
 bool ui_test_get(int peri_id);
 
 // [ screen 6 ] --- Battery
-// BQ25896
+int battery_get_capacity(void);
+/* 25896 */
 bool ui_batt_25896_is_chg(void);
 float ui_batt_25896_get_vbus(void);
 float ui_batt_25896_get_vsys(void);
@@ -96,6 +97,18 @@ float ui_batt_25896_get_pre_curr(void);
 const char * ui_batt_25896_get_chg_st(void);
 const char * ui_batt_25896_get_vbus_st(void);
 const char * ui_batt_25896_get_ntc_st(void);
+/* 27220 */
+bool battery_27220_is_vaild(void);
+bool battery_27220_is_chr(void);
+float battery_27220_get_VOLT(void);
+float battery_27220_get_VOLT_CHG(void);
+float battery_27220_get_CURR_ARG(void);
+float battery_27220_get_CURR_INS(void);
+float battery_27220_get_CURR_STD(void);
+float battery_27220_get_CURR_CHG(void);
+float battery_27220_get_TEMP(void);
+float battery_27220_get_BATT_CAP(void);
+float battery_27220_get_BATT_CAP_FULL(void);
 
 // [ screen 7 ] --- Input
 int ui_input_get_touch_coord(int *x, int *y);

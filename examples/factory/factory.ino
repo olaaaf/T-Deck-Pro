@@ -22,8 +22,8 @@
 #include "SD.h"
 #include "SPI.h"
 
-
 XPowersPPM PPM;
+BQ27220 bq27220;
 
 TouchDrvCSTXXX touch;
 GxEPD2_BW<GxEPD2_310_GDEQ031T10, GxEPD2_310_GDEQ031T10::HEIGHT> display(GxEPD2_310_GDEQ031T10(BOARD_EPD_CS, BOARD_EPD_DC, BOARD_EPD_RST, BOARD_EPD_BUSY)); // GDEQ031T10 240x320, UC8253, (no inking, backside mark KEGMO 3100)
@@ -229,9 +229,31 @@ static bool bq25896_init(void)
 
         PPM.enableCharge();
 
+        // Turn off charging function
+        // If USB is used as the only power input, it is best to turn off the charging function,
+        // otherwise the VSYS power supply will have a sawtooth wave, affecting the discharge output capability.
+        // PPM.disableCharge();
+
+
+        // The OTG function needs to enable OTG, and set the OTG control pin to HIGH
+        // After OTG is enabled, if an external power supply is plugged in, OTG will be turned off
+
+        PPM.enableOTG();
+        PPM.disableOTG();
+        // pinMode(OTG_ENABLE_PIN, OUTPUT);
+        // digitalWrite(OTG_ENABLE_PIN, HIGH);
+
         return true;
     }
     return false;
+}
+
+static bool bq27220_init(void)
+{
+    bool ret = bq27220.init();
+    if(ret) 
+        bq27220.reset();
+    return ret;
 }
 
 static bool GPS_AT_init(void)
@@ -314,7 +336,7 @@ void setup()
     peri_init_st[E_PERI_TOUCH]      = touch.begin(Wire, BOARD_I2C_ADDR_TOUCH, BOARD_TOUCH_SDA, BOARD_TOUCH_SCL);
     peri_init_st[E_PERI_KYEPAD]     = keypad_init(BOARD_I2C_ADDR_KEYBOARD);
     peri_init_st[E_PERI_BQ25896]    = bq25896_init();
-    peri_init_st[E_PERI_BQ27220]    = false;
+    peri_init_st[E_PERI_BQ27220]    = bq27220_init();
     peri_init_st[E_PERI_SD]         = SD.begin(BOARD_SD_CS);
     peri_init_st[E_PERI_GPS]        = GPS_AT_init();
     peri_init_st[E_PERI_BHI260AP]   = BHI260AP_init();
@@ -350,7 +372,6 @@ void setup()
     // flag_lora_init = lora_init();
 
     
-
     lvgl_init();
 
     ui_deckpro_entry();

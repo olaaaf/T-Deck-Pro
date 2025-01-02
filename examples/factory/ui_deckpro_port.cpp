@@ -146,7 +146,6 @@ const char *ui_setting_get_sf_ver(void)
 
 const char *ui_setting_get_sd_capacity(void)
 {
-    
     return "1234/32768Mb";
 }
 
@@ -211,6 +210,20 @@ bool ui_test_get(int peri_id)
 } 
 
 //************************************[ screen 6 ]****************************************** Battery
+
+
+int battery_get_capacity(void)
+{
+    int percent=0;
+    percent = bq27220.getChargePcnt();
+
+    printf("bq27220=%d\n", percent);
+
+    percent = (percent < 0) ? 0 : percent;
+    percent = (percent > 100) ? 100 : percent;
+
+    return percent;
+}
 // BQ25896
 bool ui_batt_25896_is_chg(void)
 {
@@ -265,6 +278,64 @@ const char * ui_batt_25896_get_ntc_st(void)
 {
     return PPM.getNTCStatusString();
     // return "hello";
+}
+/* 27220 */
+bool battery_27220_is_vaild(void)
+{
+    // return peri_buf[E_PERI_BQ27220];
+    return 0;
+}
+
+bool battery_27220_is_chr(void)
+{
+    return bq27220.getIsCharging();
+    // return 0;
+}
+
+float battery_27220_get_VOLT(void)
+{
+    return bq27220.getVolt(VOLT);
+    // return 0;
+}
+float battery_27220_get_VOLT_CHG(void)
+{
+    return bq27220.getVolt(VOLT_CHARGING);
+    // return 0;
+}
+float battery_27220_get_CURR_ARG(void)
+{
+    return bq27220.getCurr(CURR_AVERAGE);
+    // return 0;
+}
+float battery_27220_get_CURR_INS(void)
+{
+    return bq27220.getCurr(CURR_INSTANT);
+    // return 0;
+}
+float battery_27220_get_CURR_STD(void)
+{
+    return bq27220.getCurr(CURR_STANDBY);
+    // return 0;
+}
+float battery_27220_get_CURR_CHG(void)
+{
+    return bq27220.getCurr(CURR_CHARGING);
+    // return 0;
+}
+float battery_27220_get_TEMP(void)
+{
+    return (float)(bq27220.getTemp() / 10 - 273); // 摄氏度
+    // return 0;
+}
+float battery_27220_get_BATT_CAP(void)
+{
+    return bq27220.getRemainCap();
+    // return 0;
+}
+float battery_27220_get_BATT_CAP_FULL(void)
+{
+    return bq27220.getFullChargeCap();
+    // return 0;
 }
 
 //************************************[ screen 7 ]****************************************** Input

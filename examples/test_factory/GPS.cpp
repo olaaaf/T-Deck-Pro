@@ -7,7 +7,7 @@
 
 //----------------------------------------------------------------------------
 #if 1 // A7682E
-#define TINY_GSM_MODEM_A7672X
+#define TINY_GSM_MODEM_SIM7672
 #define TINY_GSM_RX_BUFFER 1024 // Set RX buffer to 1Kb
 #define MODEM_GPS_ENABLE_GPIO               (-1)
 
