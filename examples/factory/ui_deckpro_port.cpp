@@ -141,12 +141,33 @@ bool ui_setting_get_a7682_status(void)
 // About System
 const char *ui_setting_get_sf_ver(void)
 {
-    return "v1.0-241205";
+    return UI_T_DECK_PRO_VERSION;
+}
+const char *ui_setting_get_hd_ver(void)
+{
+    return BOARD_T_DECK_PRO_VERSION;
 }
 
-const char *ui_setting_get_sd_capacity(void)
+void ui_setting_get_sd_capacity(uint64_t *total, uint64_t *used)
 {
-    return "1234/32768Mb";
+    if(ui_test_sd_card())
+    {
+        if(total)
+            *total = SD.totalBytes() / (1024 * 1024);
+        if(used)
+            *used = SD.usedBytes() / (1024 * 1024);
+
+        printf("total=%lluMB, used=%lluMB\n", *total, *used);
+
+        uint64_t cardSize = SD.cardSize() / (1024 * 1024);
+        Serial.printf("SD Card Size: %lluMB\n", cardSize);
+
+        uint64_t totalSize = SD.totalBytes() / (1024 * 1024);
+        Serial.printf("SD Card Total: %lluMB\n", totalSize);
+
+        uint64_t usedSize = SD.usedBytes() / (1024 * 1024);
+        Serial.printf("SD Card Used: %lluMB\n", usedSize);
+    }
 }
 
 #endif
@@ -207,7 +228,19 @@ void ui_wifi_get_scan_info(ui_wifi_scan_info_t *list, int list_len)
 bool ui_test_get(int peri_id)
 {
     return peri_init_st[peri_id];
-} 
+}
+bool ui_test_sd_card(void) 
+{
+    return peri_init_st[E_PERI_SD];
+}
+bool ui_test_a7682e(void) 
+{
+    return peri_init_st[E_PERI_A7682E];
+}
+bool ui_test_pcm5102a(void)
+{
+    return peri_init_st[E_PERI_PCM5102A];
+}
 
 //************************************[ screen 6 ]****************************************** Battery
 
@@ -399,6 +432,13 @@ int ui_other_get_gyro(float *gyro_x, float *gyro_y, float *gyro_z)
 bool ui_a7682_at_cb(const char *at_cmd)
 {
     printf("[A7682E] at cmd: %s\n", at_cmd);
+
+    modem.sendAT("+CTTSPARAM=1,3,0,1,1");
+
+    delay(100);
+
+    modem.sendAT("+CTTS=2,\"1234567890\"");
+
     return false;
 }
 
@@ -409,3 +449,44 @@ void ui_shutdown_on(void)
     PPM.shutdown();
     Serial.println("Shutdown .....");
 }
+
+//************************************[ screen 10 ]****************************************** PCM5102
+bool ui_pcm5102_cb(const char *at_cmd)
+{
+    audio.connecttoFS(SD, "/voice_time/BBIBBI.mp3");
+    return true;
+}
+
+void ui_pcm5102_stop(void)
+{
+    audio.stopSong();
+}
+
+// optional
+void audio_info(const char *info){
+    Serial.print("info        "); Serial.println(info);
+}
+// void audio_id3data(const char *info){  //id3 metadata
+//     Serial.print("id3data     ");Serial.println(info);
+// }
+// void audio_eof_mp3(const char *info){  //end of file
+//     Serial.print("eof_mp3     ");Serial.println(info);
+// }
+// void audio_showstation(const char *info){
+//     Serial.print("station     ");Serial.println(info);
+// }
+// void audio_showstreamtitle(const char *info){
+//     Serial.print("streamtitle ");Serial.println(info);
+// }
+// void audio_bitrate(const char *info){
+//     Serial.print("bitrate     ");Serial.println(info);
+// }
+// void audio_commercial(const char *info){  //duration in sec
+//     Serial.print("commercial  ");Serial.println(info);
+// }
+// void audio_icyurl(const char *info){  //homepage
+//     Serial.print("icyurl      ");Serial.println(info);
+// }
+// void audio_lasthost(const char *info){  //stream URL played
+//     Serial.print("lasthost    ");Serial.println(info);
+// }

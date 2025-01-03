@@ -7,6 +7,7 @@
 #include "peripheral.h"
 #include <XPowersLib.h>
 #include "bq27220.h"
+#include "Audio.h"
 
 /*********************************************************************************
  *                                   DEFINES
@@ -16,21 +17,22 @@
 
 #define DISP_REFR_MODE_FULL 0
 #define DISP_REFR_MODE_PART 1
+
+#define TINY_GSM_MODEM_SIM7672
+#define TINY_GSM_RX_BUFFER 1024 // Set RX buffer to 1Kb
+#define MODEM_GPS_ENABLE_GPIO               (-1)
+
+#include <TinyGsmClient.h>
+
+extern TinyGsm modem;
 /*********************************************************************************
  *                                   MACROS
  * *******************************************************************************/
-extern bool flag_sd_init;
-extern bool flag_lora_init;
-extern bool flag_Touch_init;
-extern bool flag_Gyroscope_init;
-extern bool flag_Keypad_init;
-extern bool flag_BQ25896_init;
-extern bool flag_BQ27220_init;
-extern bool flag_LTR553ALS_init;
-
 extern bool peri_init_st[E_PERI_NUM_MAX];
 extern XPowersPPM PPM;
 extern BQ27220 bq27220;
+extern Audio audio;
+
 /*********************************************************************************
  *                                  TYPEDEFS
  * *******************************************************************************/

@@ -15,6 +15,7 @@
 
 #include "peripheral.h"
 #include "ui_deckpro.h"
+#include "utilities.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,8 +23,6 @@ extern "C" {
 /*********************************************************************************
  *                                   DEFINES
  * *******************************************************************************/
-
-
 // default language
 #define DEFAULT_LANGUAGE_EN 0 // English
 #define DEFAULT_LANGUAGE_CN 1 // Chinese
@@ -50,7 +49,6 @@ void ui_lora_recv_loop(void);
 bool ui_lora_get_recv(const char **str, int *rssi);
 void ui_lora_set_recv_flag(void);
 
-
 // [ screen 2 ] --- setting
 void ui_setting_set_language(int language);
 void ui_setting_set_keypad_light(bool on);
@@ -68,9 +66,10 @@ bool ui_setting_get_lora_status(void);
 bool ui_setting_get_gyro_status(void); 
 bool ui_setting_get_a7682_status(void);
 
-// About System
+// setting - > About System
 const char *ui_setting_get_sf_ver(void);
-const char *ui_setting_get_sd_capacity(void);
+const char *ui_setting_get_hd_ver(void);
+void ui_setting_get_sd_capacity(uint64_t *total, uint64_t *used);
 
 // [ screen 3 ] --- GPS
 void ui_GPS_print_info(void);
@@ -83,6 +82,9 @@ void ui_wifi_get_scan_info(ui_wifi_scan_info_t *list, int list_len);
 
 // [ screen 5 ] --- State
 bool ui_test_get(int peri_id);
+bool ui_test_sd_card(void);
+bool ui_test_a7682e(void);
+bool ui_test_pcm5102(void);
 
 // [ screen 6 ] --- Battery
 int battery_get_capacity(void);
@@ -122,6 +124,10 @@ bool ui_a7682_at_cb(const char *at_cmd);
 
 // shutdown
 void ui_shutdown_on(void);
+
+// [ screen 10 ] --- A7682E
+bool ui_pcm5102_cb(const char *at_cmd);void ui_pcm5102_stop(void);
+void ui_pcm5102_stop(void);
 
 #ifdef __cplusplus
 } /*extern "C"*/

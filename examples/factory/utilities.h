@@ -7,8 +7,10 @@
  */
 #pragma once
 
-// board version: v1.0 - 24.03.28
+#define UI_T_DECK_PRO_VERSION    "v1.0-250103"  // Software version
+#define BOARD_T_DECK_PRO_VERSION "v1.0-241106"  // Hardware version
 
+// IIC Addr
 #define BOARD_I2C_ADDR_TOUCH      0x1A // Touch        --- CST328
 #define BOARD_I2C_ADDR_LTR_553ALS 0x23 // Light sensor --- LTR_553ALS
 #define BOARD_I2C_ADDR_GYROSCOPDE 0x28 // Gyroscope    --- BHI260AP
@@ -19,6 +21,10 @@
 // IIC
 #define BOARD_I2C_SDA  13
 #define BOARD_I2C_SCL  14
+
+#define BOARD_I2S_BCLK 7
+#define BOARD_I2S_DOUT 8
+#define BOARD_I2S_LRC 9
 
 // Keyboard
 #define BOARD_KEYBOARD_SCL BOARD_I2C_SCL

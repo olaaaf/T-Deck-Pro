@@ -22,8 +22,11 @@
 #include "SD.h"
 #include "SPI.h"
 
+TinyGsm modem(SerialAT);
+
 XPowersPPM PPM;
 BQ27220 bq27220;
+Audio audio;
 
 TouchDrvCSTXXX touch;
 GxEPD2_BW<GxEPD2_310_GDEQ031T10, GxEPD2_310_GDEQ031T10::HEIGHT> display(GxEPD2_310_GDEQ031T10(BOARD_EPD_CS, BOARD_EPD_DC, BOARD_EPD_RST, BOARD_EPD_BUSY)); // GDEQ031T10 240x320, UC8253, (no inking, backside mark KEGMO 3100)
@@ -35,14 +38,6 @@ const char HelloWorld[] = "T-Deck-Pro!";
 
 bool peri_init_st[E_PERI_NUM_MAX] = {0};
 
-bool flag_sd_init = false;
-bool flag_lora_init = false;
-bool flag_Touch_init = false;
-bool flag_Gyroscope_init = false;
-bool flag_Keypad_init = false;
-bool flag_BQ25896_init = false;
-bool flag_BQ27220_init = false;
-bool flag_LTR553ALS_init = false;
 /*********************************************************************************
  *                              STATIC PROTOTYPES
  * *******************************************************************************/
@@ -94,7 +89,7 @@ static void flush_timer_cb(lv_timer_t *t)
         while (display.nextPage());
         display.hibernate();
         
-        // Serial.printf("flush_timer_cb:%d, %s\n", idx++, (disp_refr_mode == 0 ?"full":"part"));
+        Serial.printf("flush_timer_cb:%d, %s\n", idx++, (disp_refr_mode == 0 ?"full":"part"));
 
         disp_refr_mode = DISP_REFR_MODE_PART;
         lv_timer_pause(flush_timer);
@@ -197,7 +192,6 @@ static bool bq25896_init(void)
     Wire.beginTransmission(BOARD_I2C_ADDR_BQ25896);
     if (Wire.endTransmission() == 0)
     {
-        flag_BQ25896_init = true;
         // battery_25896.begin();
         PPM.init(Wire, BOARD_I2C_SDA, BOARD_I2C_SCL, BOARD_I2C_ADDR_BQ25896);
         // Set the minimum operating voltage. Below this voltage, the PPM will protect
@@ -256,10 +250,76 @@ static bool bq27220_init(void)
     return ret;
 }
 
+static bool sd_care_init(void)
+{
+    if(!SD.begin(BOARD_SD_CS)){
+        Serial.println("[SD CARD] Card Mount Failed");
+        return false;
+    }
+
+    uint64_t cardSize = SD.cardSize() / (1024 * 1024);
+    Serial.printf("SD Card Size: %lluMB\n", cardSize);
+
+    uint64_t totalSize = SD.totalBytes() / (1024 * 1024);
+    Serial.printf("SD Card Total: %lluMB\n", totalSize);
+
+    uint64_t usedSize = SD.usedBytes() / (1024 * 1024);
+    Serial.printf("SD Card Used: %lluMB\n", usedSize);
+    return true;
+}
+
 static bool GPS_AT_init(void)
 {
     // GPS AT init
     SerialGPS.begin(38400, SERIAL_8N1, BOARD_GPS_RXD, BOARD_GPS_TXD);
+    return true;
+}
+
+static bool A7682E_init(void)
+{
+    Serial.println("Place your board outside to catch satelite signal");
+
+    // Set module baud rate and UART pins
+    SerialAT.begin(115200, SERIAL_8N1, BOARD_A7682E_TXD, BOARD_A7682E_RXD);
+
+    Serial.println("Start modem...");
+
+    int retry_cnt = 5;
+    int retry = 0;
+    while (!modem.testAT(1000)) {
+        Serial.println(".");
+        if (retry++ > retry_cnt) {
+            digitalWrite(BOARD_A7682E_PWRKEY, LOW);
+            delay(100);
+            digitalWrite(BOARD_A7682E_PWRKEY, HIGH);
+            delay(1000);
+            digitalWrite(BOARD_A7682E_PWRKEY, LOW);
+
+            Serial.println("[A7682E] Init Fail");
+            break;
+        }
+    }
+    
+    Serial.println();
+    delay(200);
+
+    return (retry < retry_cnt);
+}
+
+static bool pcm5102a_init(void)
+{
+    bool ret = audio.setPinout(BOARD_I2S_BCLK, BOARD_I2S_LRC, BOARD_I2S_DOUT);
+
+    if (ret == false) 
+        Serial.printf("[%d] Execution error\n", __LINE__);
+
+    audio.setVolume(21); // 0...21
+
+    pinMode(BOARD_6609_EN, OUTPUT);
+    digitalWrite(BOARD_6609_EN, HIGH);
+
+    // audio_paly_flag = audio.connecttoFS(SD, "/voice_time/BBIBBI.mp3");
+
     return true;
 }
 
@@ -306,19 +366,14 @@ void setup()
                 // flag_Touch_init = true;
                 Serial.printf("[0x%x] TOUCH find!\n", address);
             } else if (address == BOARD_I2C_ADDR_LTR_553ALS) {
-                flag_LTR553ALS_init = true;
                 Serial.printf("[0x%x] LTR_553ALS find!\n", address);
             } else if (address == BOARD_I2C_ADDR_GYROSCOPDE) {
-                flag_Gyroscope_init = true;
                 Serial.printf("[0x%x] GYROSCOPDE find!\n", address);
             } else if (address == BOARD_I2C_ADDR_KEYBOARD) {
-                // flag_Keypad_init = true;
                 Serial.printf("[0x%x] KEYBOARD find!\n", address);
             } else if (address == BOARD_I2C_ADDR_BQ27220) {
-                flag_BQ27220_init = true;
                 Serial.printf("[0x%x] BQ27220 find!\n", address);
             } else if (address == BOARD_I2C_ADDR_BQ25896) {
-                flag_BQ25896_init = true;
                 Serial.printf("[0x%x] BQ25896 find!\n", address);
             }
         }
@@ -337,41 +392,17 @@ void setup()
     peri_init_st[E_PERI_KYEPAD]     = keypad_init(BOARD_I2C_ADDR_KEYBOARD);
     peri_init_st[E_PERI_BQ25896]    = bq25896_init();
     peri_init_st[E_PERI_BQ27220]    = bq27220_init();
-    peri_init_st[E_PERI_SD]         = SD.begin(BOARD_SD_CS);
+    peri_init_st[E_PERI_SD]         = sd_care_init();
     peri_init_st[E_PERI_GPS]        = GPS_AT_init();
     peri_init_st[E_PERI_BHI260AP]   = BHI260AP_init();
     peri_init_st[E_PERI_LTR_553ALS] = LTR553_init();
-    peri_init_st[E_PERI_A7682E]     = false;
-    peri_init_st[E_PERI_PCM5102A]   = false;
-    
+    peri_init_st[E_PERI_A7682E]     = A7682E_init();
 
-    // touch.setPins(BOARD_TOUCH_RST, BOARD_TOUCH_INT);
-    // flag_Touch_init = touch.begin(Wire, BOARD_I2C_ADDR_TOUCH, BOARD_TOUCH_SDA, BOARD_TOUCH_SCL);
-    // if (!flag_Touch_init) {
-    //     Serial.println("Failed to find Capacitive Touch !");
-    // } else {
-    //     Serial.println("Find Capacitive Touch");
-    // }
+    if(peri_init_st[E_PERI_A7682E] == false)
+    {
+        peri_init_st[E_PERI_PCM5102A] = pcm5102a_init();
+    }
 
-    // flag_Keypad_init = keypad_init(BOARD_I2C_ADDR_KEYBOARD);
-
-    // SPI
-    // SPI.begin(BOARD_SPI_SCK, BOARD_SPI_MISO, BOARD_SPI_MOSI);
-
-    
-    // delay(1000);
-
-    // if(SD.begin(BOARD_SD_CS)) {
-    //     flag_sd_init = true;
-    //     Serial.println("sd success");
-    // } else {
-    //     Serial.println("sd faild");
-    // }
-
-    // lora
-    // flag_lora_init = lora_init();
-
-    
     lvgl_init();
 
     ui_deckpro_entry();
@@ -383,6 +414,12 @@ void loop()
 {
     lv_task_handler();
     keypad_loop();
+
+    if(peri_init_st[E_PERI_PCM5102A] == true) 
+    {
+        audio.loop();
+    }
+    
     delay(1);
 }
 

@@ -62,6 +62,14 @@ enum {
 
 typedef void (*ui_indev_read_cb)(int);
 
+enum {
+    TASKBAR_ID_CHARGE = 0,
+    TASKBAR_ID_BATTERY_CAP,
+    TASKBAR_ID_WIFI,
+
+    TASKBAR_ID_MAX,
+};
+
 struct menu_btn {
     uint16_t idx;
     const void *icon;
@@ -100,6 +108,14 @@ typedef struct _ui_a7682 {
     lv_obj_t *st;
     bool (*cb)(const char *at_cmd);
 } ui_a7682_handle;
+
+typedef struct _ui_pcm5102 {
+    const char *name;
+    lv_obj_t *obj;
+    lv_obj_t *st;
+    bool (*cb)(const char *at_cmd);
+} ui_pcm5102_handle;
+
 
 typedef struct {
     char name[16];
