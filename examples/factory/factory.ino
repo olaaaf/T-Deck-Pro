@@ -268,13 +268,6 @@ static bool sd_care_init(void)
     return true;
 }
 
-static bool GPS_AT_init(void)
-{
-    // GPS AT init
-    SerialGPS.begin(38400, SERIAL_8N1, BOARD_GPS_RXD, BOARD_GPS_TXD);
-    return true;
-}
-
 static bool A7682E_init(void)
 {
     Serial.println("Place your board outside to catch satelite signal");
@@ -393,7 +386,7 @@ void setup()
     peri_init_st[E_PERI_BQ25896]    = bq25896_init();
     peri_init_st[E_PERI_BQ27220]    = bq27220_init();
     peri_init_st[E_PERI_SD]         = sd_care_init();
-    peri_init_st[E_PERI_GPS]        = GPS_AT_init();
+    peri_init_st[E_PERI_GPS]        = gps_init();
     peri_init_st[E_PERI_BHI260AP]   = BHI260AP_init();
     peri_init_st[E_PERI_LTR_553ALS] = LTR553_init();
     peri_init_st[E_PERI_A7682E]     = A7682E_init();

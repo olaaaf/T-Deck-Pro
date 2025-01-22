@@ -13,8 +13,6 @@
 #include <ctype.h>
 #include <TouchDrvCSTXXX.hpp>
 
-// The TinyGPS++ object
-TinyGPSPlus gps;
 
 // extern 
 extern TouchDrvCSTXXX touch;
@@ -172,36 +170,35 @@ void ui_setting_get_sd_capacity(uint64_t *total, uint64_t *used)
 
 #endif
 //************************************[ screen 3 ]****************************************** GPS
-void ui_GPS_print_info(void)
+void ui_gps_task_suspend(void)
 {
-    while (SerialGPS.available())
-    {
-        Serial.write(SerialGPS.read());
-    }
-    while (Serial.available())
-    {
-        SerialGPS.write(Serial.read());
-    }
+    gps_task_suspend();
 }
-void ui_GPS_get_info(float *lat, float *lon, float *speed, float *alt, float *accuracy,
-             int *vsat,  int *usat,  int *year,    int *month, int *day,
-             int *hour,  int *min,   int *sec)
+void ui_gps_task_resume(void)
 {
-    *lat      = gps.satellites.isValid() ? gps.location.lat() : 0;
-    *lon      = gps.location.isValid() ? gps.location.lng() : 0;
-    *speed    = gps.speed.isValid() ? gps.speed.kmph() : 0;
-    *alt      = gps.altitude.isValid() ? gps.altitude.meters() : 0;
-    *accuracy = gps.course.isValid() ? gps.course.deg() : 0;
-    *vsat     = gps.altitude.isValid() ? gps.satellites.value() : 0;
-    *usat     = gps.altitude.isValid() ? gps.satellites.value() : 0;
-    *year     = gps.date.isValid() ? gps.date.year() : 0;
-    *month    = gps.date.isValid() ? gps.date.month() : 0;
-    *day      = gps.date.isValid() ? gps.date.day() : 0;
-    *hour     = gps.time.isValid() ? gps.time.hour() : 0;
-    *min      = gps.time.isValid() ? gps.time.minute() : 0;
-    *sec      = gps.time.isValid() ? gps.time.second() : 0;
+    gps_task_resume();
+}
+void ui_gps_get_coord(double *lat, double *lng)
+{
+    gps_get_coord(lat, lng);
+}
+void ui_gps_get_data(uint16_t *year, uint8_t *month, uint8_t *day)
+{
+    gps_get_data(year, month, day);
+}
+void ui_gps_get_time(uint8_t *hour, uint8_t *minute, uint8_t *second)
+{
+    gps_get_time(hour, minute, second);
 }
 
+void ui_gps_get_satellites(uint32_t *vsat)
+{
+    gps_get_satellites(vsat);
+}
+void ui_gps_get_speed(double *speed)
+{
+    gps_get_speed(speed);
+}
 //************************************[ screen 4 ]****************************************** Wifi Scan
 int is_chinese_utf8(const char *str) {
     unsigned char c = (unsigned char)str[0];
@@ -245,22 +242,15 @@ bool ui_test_pcm5102a(void)
 //************************************[ screen 6 ]****************************************** Battery
 #if 1
 
-int battery_get_capacity(void)
-{
-    int percent=0;
-    // percent = bq27220.getChargePcnt();
-
-    // printf("bq27220=%d\n", percent);
-
-    // percent = (percent < 0) ? 0 : percent;
-    // percent = (percent > 100) ? 100 : percent;
-
-    return percent;
-}
 // BQ25896
+bool ui_battery_25896_is_vbus_in(void)
+{
+    return PPM.isVbusIn();
+}
+
 bool ui_batt_25896_is_chg(void)
 {
-    if(PPM.isVbusIn() == false) {
+    if(PPM.isCharging() == false) {
         return false;
     } else {
         return true;
@@ -312,55 +302,6 @@ const char * ui_batt_25896_get_ntc_st(void)
     return PPM.getNTCStatusString();
     // return "hello";
 }
-/* 27220 */
-bool battery_27220_is_vaild(void)
-{
-    // return peri_buf[E_PERI_BQ27220];
-    return 0;
-}
-
-bool battery_27220_is_chr(void)
-{
-    return 0;
-}
-
-float battery_27220_get_VOLT(void)
-{
-    return 0;
-}
-float battery_27220_get_VOLT_CHG(void)
-{
-    return 0;
-}
-float battery_27220_get_CURR_ARG(void)
-{
-    return 0;
-}
-float battery_27220_get_CURR_INS(void)
-{
-    return 0;
-}
-float battery_27220_get_CURR_STD(void)
-{
-    return 0;
-}
-float battery_27220_get_CURR_CHG(void)
-{
-    return 0;
-}
-float battery_27220_get_TEMP(void)
-{
-    return 0;
-}
-float battery_27220_get_BATT_CAP(void)
-{
-    return 0;
-}
-float battery_27220_get_BATT_CAP_FULL(void)
-{
-    return 0;
-}
-
 /* 27220 */
 bool ui_battery_27220_is_vaild(void) {return peri_init_st[E_PERI_BQ27220]; }
 bool ui_battery_27220_get_input(void) { return bq27220.getIsCharging();}

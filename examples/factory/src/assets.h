@@ -19,6 +19,7 @@ LV_IMG_DECLARE(img_test)
 LV_IMG_DECLARE(img_wifi)
 LV_IMG_DECLARE(img_A7682)
 LV_IMG_DECLARE(img_touch)
+LV_IMG_DECLARE(img_start)
 
 
 // font

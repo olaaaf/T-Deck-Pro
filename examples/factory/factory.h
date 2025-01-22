@@ -12,8 +12,6 @@
 /*********************************************************************************
  *                                   DEFINES
  * *******************************************************************************/
-#define SerialAT Serial1
-#define SerialGPS Serial2
 
 #define DISP_REFR_MODE_FULL 0
 #define DISP_REFR_MODE_PART 1

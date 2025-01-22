@@ -72,10 +72,13 @@ const char *ui_setting_get_hd_ver(void);
 void ui_setting_get_sd_capacity(uint64_t *total, uint64_t *used);
 
 // [ screen 3 ] --- GPS
-void ui_GPS_print_info(void);
-void ui_GPS_get_info(float *lat, float *lon, float *speed, float *alt, float *accuracy,
-             int *vsat,  int *usat,  int *year,    int *month, int *day,
-             int *hour,  int *min,   int *sec);
+void ui_gps_task_suspend(void);
+void ui_gps_task_resume(void);
+void ui_gps_get_coord(double *lat, double *lng);
+void ui_gps_get_data(uint16_t *year, uint8_t *month, uint8_t *day);
+void ui_gps_get_time(uint8_t *hour, uint8_t *minute, uint8_t *second);
+void ui_gps_get_satellites(uint32_t *vsat);
+void ui_gps_get_speed(double *speed);
 
 // [ screen 4 ] --- Wifi Scan
 void ui_wifi_get_scan_info(ui_wifi_scan_info_t *list, int list_len);
@@ -87,8 +90,8 @@ bool ui_test_a7682e(void);
 bool ui_test_pcm5102(void);
 
 // [ screen 6 ] --- Battery
-int battery_get_capacity(void);
 /* 25896 */
+bool ui_battery_25896_is_vbus_in(void);
 bool ui_batt_25896_is_chg(void);
 float ui_batt_25896_get_vbus(void);
 float ui_batt_25896_get_vsys(void);
@@ -99,18 +102,6 @@ float ui_batt_25896_get_pre_curr(void);
 const char * ui_batt_25896_get_chg_st(void);
 const char * ui_batt_25896_get_vbus_st(void);
 const char * ui_batt_25896_get_ntc_st(void);
-/* 27220 */
-bool battery_27220_is_vaild(void);
-bool battery_27220_is_chr(void);
-float battery_27220_get_VOLT(void);
-float battery_27220_get_VOLT_CHG(void);
-float battery_27220_get_CURR_ARG(void);
-float battery_27220_get_CURR_INS(void);
-float battery_27220_get_CURR_STD(void);
-float battery_27220_get_CURR_CHG(void);
-float battery_27220_get_TEMP(void);
-float battery_27220_get_BATT_CAP(void);
-float battery_27220_get_BATT_CAP_FULL(void);
 
 /* 27220 */
 bool ui_battery_27220_is_vaild(void);

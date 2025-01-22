@@ -1,6 +1,12 @@
 #ifndef __PERIPHERAL_H__
 #define __PERIPHERAL_H__
 
+#define GPS_PRIORITY     (configMAX_PRIORITIES - 1)
+#define LORA_PRIORITY    (configMAX_PRIORITIES - 2)
+#define WS2812_PRIORITY  (configMAX_PRIORITIES - 3)
+#define BATTERY_PRIORITY (configMAX_PRIORITIES - 4)
+#define INFARED_PRIORITY (configMAX_PRIORITIES - 5)
+
 enum {
     E_PERI_LORA = 0,
     E_PERI_TOUCH,
@@ -51,5 +57,16 @@ void BHI260AP_get_val(int val_type, float *x, float *y, float *z);
 bool LTR553_init(void);
 uint16_t LTR_553ALS_get_channel(int ch); // ch 0~1
 uint16_t LTR_553ALS_get_ps(void);
+
+// gps u-blox m10q
+bool gps_init(void);
+void gps_task_create(void);
+void gps_task_suspend(void);
+void gps_task_resume(void);
+void gps_get_coord(double *lat, double *lng);
+void gps_get_data(uint16_t *year, uint8_t *month, uint8_t *day);
+void gps_get_time(uint8_t *hour, uint8_t *minute, uint8_t *second);
+void gps_get_satellites(uint32_t *vsat);
+void gps_get_speed(double *speed);
 
 #endif

@@ -10,6 +10,11 @@
 #define UI_T_DECK_PRO_VERSION    "v1.0-250103"  // Software version
 #define BOARD_T_DECK_PRO_VERSION "v1.0-241106"  // Hardware version
 
+// Serial
+#define SerialMon   Serial      // 
+#define SerialAT    Serial1     // 
+#define SerialGPS   Serial2     // 
+
 // IIC Addr
 #define BOARD_I2C_ADDR_TOUCH      0x1A // Touch        --- CST328
 #define BOARD_I2C_ADDR_LTR_553ALS 0x23 // Light sensor --- LTR_553ALS
