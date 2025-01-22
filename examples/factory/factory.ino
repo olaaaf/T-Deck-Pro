@@ -245,8 +245,8 @@ static bool bq25896_init(void)
 static bool bq27220_init(void)
 {
     bool ret = bq27220.init();
-    if(ret) 
-        bq27220.reset();
+    // if(ret) 
+    //     bq27220.reset();
     return ret;
 }
 

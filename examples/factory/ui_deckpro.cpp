@@ -5,7 +5,6 @@
 #include "ui_deckpro_port.h"
 #include "Arduino.h"
 
-#define line_max 21
 #define SETTING_PAGE_MAX_ITEM 7
 #define GET_BUFF_LEN(a) sizeof(a)/sizeof(a[0])
 
@@ -33,12 +32,6 @@ uint16_t taskbar_statue[TASKBAR_ID_MAX] = {0};
 
 //************************************[ Other fun ]******************************************
 #if 1
-static void scr_label_line_algin(lv_obj_t *label, int line_len, const char *str1, const char *str2)
-{
-    int w2 = strlen(str2);
-    int w1 = line_len - w2;
-    lv_label_set_text_fmt(label, "%-*s%-*s", w1, str1, w2, str2);
-}
 
 static lv_obj_t *scr_back_btn_create(lv_obj_t *parent, const char *text, lv_event_cb_t cb)
 {
@@ -125,7 +118,7 @@ static struct menu_btn menu_btn_list[] =
     {SCREEN7_ID,  &img_touch,   "Input",    23,     189},
     {SCREEN8_ID,  &img_A7682,   "A7682",    95,     189},
     {SCREEN9_ID,  &img_lora,    "Shutdown", 167,    189},
-    // {SCREEN10_ID, &img_lora,    "PCM5102",     23,     13},  // Page two
+    {SCREEN10_ID, &img_lora,    "PCM5102",  23,     13},  // Page two
 };
 
 static void menu_btn_event_cb(lv_event_t *e)
@@ -207,8 +200,6 @@ static void create0(lv_obj_t *parent)
 {
     int status_bar_height = 25;
 
-    taskbar_statue[TASKBAR_ID_BATTERY_CAP] = battery_get_capacity();
-
     menu_taskbar = lv_obj_create(parent);
     lv_obj_set_size(menu_taskbar, LV_HOR_RES, status_bar_height);
     lv_obj_set_style_pad_all(menu_taskbar, 0, LV_PART_MAIN);
@@ -251,28 +242,11 @@ static void create0(lv_obj_t *parent)
 
     if(taskbar_statue[TASKBAR_ID_CHARGE])
         lv_obj_clear_flag(menu_taskbar_charge, LV_OBJ_FLAG_HIDDEN);
-    /**
-     * 0-19     empty
-     * 20-39    1/4
-     * 40-64    1/2
-     * 65-89    3/4
-     * 90-100   full
-    */
-    menu_taskbar_battery = lv_label_create(status_parent);
-    if(taskbar_statue[TASKBAR_ID_BATTERY_CAP] < 20)
-        lv_label_set_text_fmt(menu_taskbar_battery, "%s", LV_SYMBOL_BATTERY_EMPTY);
-    else if(taskbar_statue[TASKBAR_ID_BATTERY_CAP] < 40)
-        lv_label_set_text_fmt(menu_taskbar_battery, "%s", LV_SYMBOL_BATTERY_1);
-    else if(taskbar_statue[TASKBAR_ID_BATTERY_CAP] < 65)
-        lv_label_set_text_fmt(menu_taskbar_battery, "%s", LV_SYMBOL_BATTERY_2);
-    else if(taskbar_statue[TASKBAR_ID_BATTERY_CAP] < 90)
-        lv_label_set_text_fmt(menu_taskbar_battery, "%s", LV_SYMBOL_BATTERY_3);
-    else
-        lv_label_set_text_fmt(menu_taskbar_battery, "%s", LV_SYMBOL_BATTERY_FULL);
 
+    menu_taskbar_battery = lv_label_create(status_parent);
+    
     menu_taskbar_battery_percent = lv_label_create(status_parent);
     lv_obj_set_style_text_font(menu_taskbar_battery_percent, &Font_Mono_Bold_14, LV_PART_MAIN);
-    lv_label_set_text_fmt(menu_taskbar_battery_percent, "%d", taskbar_statue[TASKBAR_ID_BATTERY_CAP]);
 
     //
     page_num = MENU_BTN_NUM / 9;
@@ -361,6 +335,10 @@ static void entry0(void) {
     ui_get_gesture_dir = menu_get_gesture_dir;
     lv_timer_resume(touch_chk_timer);
     lv_timer_resume(taskbar_update_timer);
+
+    lv_label_set_text_fmt(menu_taskbar_battery, "%s", ui_battert_27220_get_percent_level());
+
+    lv_label_set_text_fmt(menu_taskbar_battery_percent, "%d", ui_battery_27220_get_percent());
 }
 static void exit0(void) {
     ui_get_gesture_dir = NULL;
@@ -559,10 +537,10 @@ static void create2_1(lv_obj_t *parent)
     String str = "";
 
     str += "                           \n";
-    str += line_full_format(28, "UI Version:", ui_setting_get_sf_ver());
+    str += line_full_format(28, "SF Version:", ui_setting_get_sf_ver());
     str += "\n                           \n";
 
-    str += line_full_format(28, "Board Version:", ui_setting_get_hd_ver());
+    str += line_full_format(28, "HD Version:", ui_setting_get_hd_ver());
     str += "\n                           \n";
 
     char buf[30];
@@ -817,8 +795,17 @@ static scr_lifecycle_t screen2 = {
 #endif
 //************************************[ screen 3 ]****************************************** GPS
 #if 1
+
+#define line_max 21
 static lv_obj_t *scr3_cont;
 static lv_timer_t *GPS_loop_timer = NULL;
+
+static void gps_set_line(lv_obj_t *label, const char *str1, const char *str2)
+{
+    int w2 = strlen(str2);
+    int w1 = line_max - w2;
+    lv_label_set_text_fmt(label, "%-*s%-*s", w1, str1, w2, str2);
+}
 
 static lv_obj_t * scr3_create_label(lv_obj_t *parent)
 {
@@ -852,34 +839,34 @@ static void scr3_GPS_updata(void)
     ui_GPS_get_info(&lat, &lon, &speed, &alt, &accuracy, &vsat, &usat, &year, &month, &day, &hour, &min, &sec);
 
     lv_snprintf(buf, 16, "%0.1f", lat);
-    scr_label_line_algin(label_list[0], line_max, "lat:", buf);
+    gps_set_line(label_list[0], "lat:", buf);
 
     lv_snprintf(buf, 16, "%0.1f", lon);
-    scr_label_line_algin(label_list[1], line_max, "lon:", buf);
+    gps_set_line(label_list[1], "lon:", buf);
 
     lv_snprintf(buf, 16, "%0.1f", speed);
-    scr_label_line_algin(label_list[2], line_max, "speed:", buf);
+    gps_set_line(label_list[2], "speed:", buf);
 
     lv_snprintf(buf, 16, "%0.1f", alt);
-    scr_label_line_algin(label_list[3], line_max, "alt:", buf);
+    gps_set_line(label_list[3], "alt:", buf);
 
     lv_snprintf(buf, 16, "%d", vsat);
-    scr_label_line_algin(label_list[4], line_max, "vsat:", buf);
+    gps_set_line(label_list[4], "vsat:", buf);
 
     lv_snprintf(buf, 16, "%d", usat);
-    scr_label_line_algin(label_list[5], line_max, "usat:", buf);
+    gps_set_line(label_list[5], "usat:", buf);
 
     lv_snprintf(buf, 16, "%d", year);
-    scr_label_line_algin(label_list[6], line_max, "year:", buf);
+    gps_set_line(label_list[6], "year:", buf);
 
     lv_snprintf(buf, 16, "%d", month);
-    scr_label_line_algin(label_list[7], line_max, "month:", buf);
+    gps_set_line(label_list[7], "month:", buf);
 
     lv_snprintf(buf, 16, "%d", day);
-    scr_label_line_algin(label_list[8], line_max, "day:", buf);
+    gps_set_line(label_list[8], "day:", buf);
 
     lv_snprintf(buf, 16, "%02d:%02d:%02d", hour, min, sec);
-    scr_label_line_algin(label_list[9], line_max, "time:", buf);
+    gps_set_line(label_list[9], "time:", buf);
 }
 
 static void GPS_loop_timer_event(lv_timer_t * t)
@@ -939,6 +926,9 @@ static scr_lifecycle_t screen3 = {
     .exit  = exit3,
     .destroy = destroy3,
 };
+
+#undef line_max
+
 #endif
 //************************************[ screen 4 ]****************************************** Wifi Scan
 #if 1
@@ -1225,15 +1215,33 @@ static scr_lifecycle_t screen5 = {
 #endif
 //************************************[ screen 6 ]****************************************** Battery
 #if 1
+
+#define line_max 23
+
 static lv_obj_t *back6_label;
 static bool show_batt_type = true;
 static lv_timer_t *batt_updata_timer = NULL;
+
+static void battery_set_line(lv_obj_t *label, const char *str1, const char *str2)
+{
+    int w2 = strlen(str2);
+    int w1 = line_max - w2;
+    lv_label_set_text_fmt(label, "%-*s%-*s", w1, str1, w2, str2);
+}
+
+static void scr_label_line_algin(lv_obj_t *label, int line_len, const char *str1, const char *str2)
+{
+    int w2 = strlen(str2);
+    int w1 = line_len - w2;
+    lv_label_set_text_fmt(label, "%-*s%-*s", w1, str1, w2, str2);
+}
+
 
 static lv_obj_t * scr6_create_label(lv_obj_t *parent)
 {
     lv_obj_t *label = lv_label_create(parent);
     lv_obj_set_width(label, lv_pct(90));
-    lv_obj_set_style_text_font(label, FONT_BOLD_MONO_SIZE_16, LV_PART_MAIN);   
+    lv_obj_set_style_text_font(label, FONT_BOLD_MONO_SIZE_15, LV_PART_MAIN);   
     lv_obj_set_style_border_width(label, 1, LV_PART_MAIN);
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
     lv_obj_set_style_border_side(label, LV_BORDER_SIDE_BOTTOM, LV_PART_MAIN);
@@ -1279,32 +1287,38 @@ static void scr6_battert_updata(void)
         /// BQ27220
         lv_label_set_text(back6_label, "BQ27220");
 
-        scr_label_line_algin(label_list[0], line_max, "Charge:", (battery_27220_is_chr() == true ? "Charging" : "Not charged"));
+        battery_set_line(label_list[0],"VBUS ST::", (ui_battery_27220_get_input() == true ? "Connected" : "Disonnected"));
 
-        lv_snprintf(buf, line_max, "%.2fV", battery_27220_get_VOLT()/1000);
-        scr_label_line_algin(label_list[1], line_max, "VOLT:", buf);
+        if(ui_battery_27220_get_input() == true ){
+            lv_snprintf(buf, line_max, "%s", (ui_battery_27220_get_charge_finish()? "Finsish":"Charging"));
+        } else {
+            lv_snprintf(buf, line_max, "%s", "Discharge");
+        }
+        battery_set_line(label_list[1],"Charing ST:", buf);
 
-        lv_snprintf(buf, line_max, "%.2fmA", battery_27220_get_CURR_ARG());
-        scr_label_line_algin(label_list[2], line_max, "CURR AVG:", buf);
+        lv_snprintf(buf, line_max, "0x%x", ui_battery_27220_get_status());
+        battery_set_line(label_list[2],"Battery ST:", buf);
 
-        lv_snprintf(buf, line_max, "%.2f", battery_27220_get_TEMP());
-        scr_label_line_algin(label_list[3], line_max, "TEMP:", buf);
+        lv_snprintf(buf, line_max, "%dmV", ui_battery_27220_get_voltage());
+        battery_set_line(label_list[3], "Voltage:", buf);
 
-        lv_snprintf(buf, line_max, "%.0f", battery_27220_get_BATT_CAP());
-        scr_label_line_algin(label_list[4], line_max, "CAP BATT:", buf);
+        lv_snprintf(buf, line_max, "%dmA", ui_battery_27220_get_current());
+        battery_set_line(label_list[4], "Current:", buf);
 
-        lv_snprintf(buf, line_max, "%.0f", battery_27220_get_BATT_CAP_FULL());
-        scr_label_line_algin(label_list[5], line_max, "CAP BATT Full", buf);
+        lv_snprintf(buf, line_max, "%.2fC", (float)(ui_battery_27220_get_temperature() / 10.0 - 273.0));
+        battery_set_line(label_list[5], "Temperature:", buf);
 
-        lv_snprintf(buf, line_max, "%d", battery_get_capacity());
-        scr_label_line_algin(label_list[6], line_max, "Percent:", buf);
+        lv_snprintf(buf, line_max, "%dmAh", ui_battery_27220_get_remain_capacity());
+        battery_set_line(label_list[6], "Cap Remain:", buf);
 
-        lv_snprintf(buf, line_max, "%s", " ");
-        scr_label_line_algin(label_list[7], line_max, " ", buf);
+        lv_snprintf(buf, line_max, "%dmAh", ui_battery_27220_get_full_capacity());
+        battery_set_line(label_list[7], "Cap Full:", buf);
 
-        scr_label_line_algin(label_list[8], line_max, " ", buf);
+        lv_snprintf(buf, line_max, "%d%%", ui_battery_27220_get_percent());
+        battery_set_line(label_list[8], "Cap Percent:", buf);
 
-        scr_label_line_algin(label_list[9], line_max, " ", buf);
+        lv_snprintf(buf, line_max, "%d%%", ui_battery_27220_get_health());
+        battery_set_line(label_list[9], "CapHealth:", buf);
     }
 }
 
@@ -1387,6 +1401,8 @@ static scr_lifecycle_t screen6 = {
     .exit  = exit6,
     .destroy = destroy6,
 };
+#undef line_max
+
 #endif
 //************************************[ screen 7 ]****************************************** Other
 #if 1
@@ -2029,40 +2045,48 @@ static void menu_keypay_get_event(lv_timer_t *t)
 
 static void menu_taskbar_update_timer_cb(lv_timer_t *t)
 {
-    if(taskbar_statue[TASKBAR_ID_CHARGE] != ui_batt_25896_is_chg()) 
-    {
-        taskbar_statue[TASKBAR_ID_CHARGE] = ui_batt_25896_is_chg();
+    static int sec = 0;
+    sec++;
 
-        if(taskbar_statue[TASKBAR_ID_CHARGE])
+    bool charge = 0;
+    bool finish = 0;
+    bool wifi = 0;
+    int percent = 0;
+
+    if(sec % 10 == 0)
+    {
+        finish = ui_battery_27220_get_charge_finish();
+        percent = ui_battery_27220_get_percent();
+
+        if(taskbar_statue[TASKBAR_ID_CHARGE_FINISH] != finish) 
+        {
+            if(finish){
+                lv_label_set_text_fmt(menu_taskbar_charge, "%s", LV_SYMBOL_OK);
+            } else {
+                lv_label_set_text_fmt(menu_taskbar_charge, "%s", LV_SYMBOL_CHARGE);
+            }
+            taskbar_statue[TASKBAR_ID_CHARGE_FINISH] = finish;
+        }
+
+        if(taskbar_statue[TASKBAR_ID_BATTERY_PERCENT] != percent) 
+        {
+            lv_label_set_text_fmt(menu_taskbar_battery_percent, "%d", percent);
+            lv_label_set_text_fmt(menu_taskbar_battery, "%s", ui_battert_27220_get_percent_level());
+            taskbar_statue[TASKBAR_ID_BATTERY_PERCENT] = percent;
+        }
+    }
+
+    charge = ui_battery_27220_get_input();
+    if(taskbar_statue[TASKBAR_ID_CHARGE] != charge) 
+    {
+        if(charge) {
             lv_obj_clear_flag(menu_taskbar_charge, LV_OBJ_FLAG_HIDDEN);
-        else 
+        } else {
             lv_obj_add_flag(menu_taskbar_charge, LV_OBJ_FLAG_HIDDEN);
+        }
+        taskbar_statue[TASKBAR_ID_CHARGE] = charge;
     }
 
-    if(taskbar_statue[TASKBAR_ID_BATTERY_CAP] != battery_get_capacity())
-    {
-        taskbar_statue[TASKBAR_ID_BATTERY_CAP] = battery_get_capacity();
-
-        lv_label_set_text_fmt(menu_taskbar_battery_percent, "%d", taskbar_statue[TASKBAR_ID_BATTERY_CAP]);
-
-        /**
-         * 0-19     empty
-         * 20-39    1/4
-         * 40-64    1/2
-         * 65-89    3/4
-         * 90-100   full
-        */
-        if(taskbar_statue[TASKBAR_ID_BATTERY_CAP] < 20)
-            lv_label_set_text_fmt(menu_taskbar_battery, "%s", LV_SYMBOL_BATTERY_EMPTY);
-        else if(taskbar_statue[TASKBAR_ID_BATTERY_CAP] < 40)
-            lv_label_set_text_fmt(menu_taskbar_battery, "%s", LV_SYMBOL_BATTERY_1);
-        else if(taskbar_statue[TASKBAR_ID_BATTERY_CAP] < 65)
-            lv_label_set_text_fmt(menu_taskbar_battery, "%s", LV_SYMBOL_BATTERY_2);
-        else if(taskbar_statue[TASKBAR_ID_BATTERY_CAP] < 90)
-            lv_label_set_text_fmt(menu_taskbar_battery, "%s", LV_SYMBOL_BATTERY_3);
-        else
-            lv_label_set_text_fmt(menu_taskbar_battery, "%s", LV_SYMBOL_BATTERY_FULL);
-    }
 }
 
 void ui_deckpro_entry(void)
@@ -2073,7 +2097,7 @@ void ui_deckpro_entry(void)
     touch_chk_timer = lv_timer_create(indev_get_gesture_dir, LV_INDEV_DEF_READ_PERIOD, NULL);
     lv_timer_pause(touch_chk_timer);
 
-    taskbar_update_timer = lv_timer_create(menu_taskbar_update_timer_cb, 3000, NULL);
+    taskbar_update_timer = lv_timer_create(menu_taskbar_update_timer_cb, 1000, NULL);
     lv_timer_pause(taskbar_update_timer);
 
     scr_mgr_init();

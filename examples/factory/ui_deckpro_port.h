@@ -112,6 +112,21 @@ float battery_27220_get_TEMP(void);
 float battery_27220_get_BATT_CAP(void);
 float battery_27220_get_BATT_CAP_FULL(void);
 
+/* 27220 */
+bool ui_battery_27220_is_vaild(void);
+bool ui_battery_27220_get_input(void);
+bool ui_battery_27220_get_charge_finish(void);
+uint16_t ui_battery_27220_get_status(void);
+uint16_t ui_battery_27220_get_voltage(void);
+int16_t ui_battery_27220_get_current(void);
+uint16_t ui_battery_27220_get_temperature(void);
+uint16_t ui_battery_27220_get_full_capacity(void);
+uint16_t ui_battery_27220_get_design_capacity(void);
+uint16_t ui_battery_27220_get_remain_capacity(void);
+uint16_t ui_battery_27220_get_percent(void);
+uint16_t ui_battery_27220_get_health(void);
+const char * ui_battert_27220_get_percent_level(void);
+
 // [ screen 7 ] --- Input
 int ui_input_get_touch_coord(int *x, int *y);
 int ui_input_get_keypay_val(char *v);

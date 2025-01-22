@@ -63,10 +63,10 @@ enum {
 typedef void (*ui_indev_read_cb)(int);
 
 enum {
-    TASKBAR_ID_CHARGE = 0,
-    TASKBAR_ID_BATTERY_CAP,
+    TASKBAR_ID_CHARGE,
+    TASKBAR_ID_CHARGE_FINISH,
+    TASKBAR_ID_BATTERY_PERCENT,
     TASKBAR_ID_WIFI,
-
     TASKBAR_ID_MAX,
 };
 

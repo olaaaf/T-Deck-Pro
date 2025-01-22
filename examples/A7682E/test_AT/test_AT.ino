@@ -1,16 +1,5 @@
 #include "Arduino.h"
-
-// A7682E Modem
-#define BOARD_A7682E_POWER_EN 41 // enable 7682 module
-#define BOARD_A7682E_RI 7
-#define BOARD_A7682E_DTR 8
-#define BOARD_A7682E_RST 9
-#define BOARD_A7682E_RXD 10
-#define BOARD_A7682E_TXD 11
-#define BOARD_A7682E_PWRKEY 40
-
-#define SerialMon Serial
-#define SerialAT Serial1
+#include "utilities.h"
 
 bool reply = false;
 
@@ -21,6 +10,9 @@ bool reply = false;
  */
 void A7682E_reset(void)
 {
+    pinMode(BOARD_A7682E_RST, OUTPUT);
+    digitalWrite(BOARD_A7682E_RST, HIGH);
+    delay(100);
     digitalWrite(BOARD_A7682E_RST, LOW);
     delay(2500); // Pull down for at least 2 seconds to reset
     digitalWrite(BOARD_A7682E_RST, HIGH);
@@ -52,24 +44,33 @@ void A7682E_power_off(void)
 
 void setup(void)
 {
-    // enable GPS module power
+    // enable A7682 module power
     pinMode(BOARD_A7682E_POWER_EN, OUTPUT);
     digitalWrite(BOARD_A7682E_POWER_EN, HIGH);
 
     SerialMon.begin(115200);
     SerialAT.begin(115200, SERIAL_8N1, BOARD_A7682E_TXD, BOARD_A7682E_RXD);
 
-    //
+    // Power on the modem PWRKEY
     pinMode(BOARD_A7682E_PWRKEY, OUTPUT);
     digitalWrite(BOARD_A7682E_PWRKEY, HIGH);
-    // pinMode(BOARD_A7682E_RST, OUTPUT);
-    // digitalWrite(BOARD_A7682E_RST, HIGH);
 
-    // A7682 Power off
-    A7682E_power_off();
+    // delay(2000);
+
+// #ifdef BOARD_A7682E_RST
+// 	// Set modem reset pin ,reset modem
+// 	// The module will also be started during reset.
+// 	Serial.println("Set Reset Pin.");
+// 	A7682E_reset();
+// #endif
 
     // A7682  Power on
+    Serial.println("Power on the modem PWRKEY.");
     A7682E_power_on();
+
+    // UART is ready to exit from the sleep mode if DTR pin is pulled down
+    // pinMode(BOARD_A7682E_DTR, OUTPUT);
+    // digitalWrite(BOARD_A7682E_DTR, LOW);
 
     int i = 10;
     Serial.println("\nTesting Modem Response...\n");

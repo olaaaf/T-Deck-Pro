@@ -7,6 +7,9 @@
 #include <stdio.h>
 #include "utilities.h"
 
+#include "FS.h"
+#include "SPIFFS.h"
+
 // Digital I/O used
 #define SD_CS 48
 #define SPI_MOSI 33
@@ -106,24 +109,38 @@ void setup()
 {
     Serial.begin(115200);
 
-    SPI.begin(SPI_SCK, SPI_MISO, SPI_MOSI);
+    pinMode(BOARD_6609_EN, OUTPUT);
+    digitalWrite(BOARD_6609_EN, HIGH);
 
-    sd_card_init();
+    // SPI.begin(SPI_SCK, SPI_MISO, SPI_MOSI);
+
+    // sd_card_init();
+
+    if(!SPIFFS.begin(true)){
+        Serial.println("SPIFFS Mount Failed");
+        return;
+    }
+
+    Serial.println("*************** SPIFFS ****************");
+    listDir(SPIFFS, "/", 0);
+    Serial.println("**************************************");
 
     audio_paly_flag = audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
     ASSERT_FLAG(audio_paly_flag);
 
     audio.setVolume(21); // 0...21
 
-    delay(5000);
-
-    pinMode(BOARD_6609_EN, OUTPUT);
-    digitalWrite(BOARD_6609_EN, HIGH);
-
-    audio_paly_flag = audio.connecttoFS(SD, "/voice_time/BBIBBI.mp3");
+    audio_paly_flag = audio.connecttoFS(SPIFFS, "/iphone_call.mp3");
 }
 
 void loop()
 {
     audio.loop();
+    // delay(1);
+}
+
+void audio_eof_mp3(const char *info){  //end of file
+    Serial.printf("file :%s\n", info);
+
+    audio.connecttoFS(SPIFFS, "/iphone_call.mp3");
 }
