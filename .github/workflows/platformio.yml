@@ -20,7 +20,6 @@ jobs:
           - examples/A7682E/test_AT
           - examples/test_BHI260AP
           - examples/test_EPD
-          - examples/test_factory
           - examples/test_GPS
           - examples/test_keypad
           - examples/test_lora_recv
