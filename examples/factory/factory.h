@@ -8,6 +8,11 @@
 #include <XPowersLib.h>
 #include "bq27220.h"
 #include "Audio.h"
+#include "FS.h"
+#include "SD.h"
+#include "SPI.h"
+#include "FS.h"
+#include "SPIFFS.h"
 
 /*********************************************************************************
  *                                   DEFINES

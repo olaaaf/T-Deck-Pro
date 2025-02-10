@@ -18,9 +18,6 @@
 #include <Fonts/FreeMonoBold9pt7b.h>
 #include "factory.h"
 #include "peripheral.h"
-#include "FS.h"
-#include "SD.h"
-#include "SPI.h"
 
 TinyGsm modem(SerialAT);
 
@@ -316,6 +313,37 @@ static bool pcm5102a_init(void)
     return true;
 }
 
+static void listDir(fs::FS &fs, const char * dirname, uint8_t levels){
+    Serial.printf("Listing spiffs directory: %s\n", dirname);
+
+    File root = fs.open(dirname);
+    if(!root){
+        Serial.println("- failed to open directory");
+        return;
+    }
+    if(!root.isDirectory()){
+        Serial.println(" - not a directory");
+        return;
+    }
+
+    File file = root.openNextFile();
+    while(file){
+        if(file.isDirectory()){
+            Serial.print("  DIR : ");
+            Serial.println(file.name());
+            if(levels){
+                listDir(fs, file.path(), levels -1);
+            }
+        } else {
+            Serial.print("  FILE: ");
+            Serial.print(file.name());
+            Serial.print("\tSIZE: ");
+            Serial.println(file.size());
+        }
+        file = root.openNextFile();
+    }
+}
+
 void setup()
 {
     // LORA、SD、EPD use the same SPI, in order to avoid mutual influence;
@@ -349,7 +377,7 @@ void setup()
     byte error, address;
     int nDevices = 0;
     Wire.begin(BOARD_I2C_SDA, BOARD_I2C_SCL);
-    Serial.printf("------------- I2C ------------- \n");
+    Serial.printf(" ------------- I2C ------------- \n");
     for(address = 0x01; address < 0x7F; address++){
         Wire.beginTransmission(address);
         error = Wire.endTransmission();
@@ -371,8 +399,16 @@ void setup()
             }
         }
     }
-    
-    Serial.printf("------------------------------ \n");
+
+    Serial.printf(" ------------- SPIFFS ------------- \n");
+
+    if(!SPIFFS.begin(true)){
+        Serial.println("SPIFFS Mount Failed");
+        return;
+    }
+
+    listDir(SPIFFS, "/", 0);
+    Serial.println(" ------------- PERI ------------- ");
 
     // SPI
     SPI.begin(BOARD_SPI_SCK, BOARD_SPI_MISO, BOARD_SPI_MOSI);

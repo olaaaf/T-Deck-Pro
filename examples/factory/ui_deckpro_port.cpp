@@ -414,7 +414,7 @@ void ui_shutdown_on(void)
 //************************************[ screen 10 ]****************************************** PCM5102
 bool ui_pcm5102_cb(const char *at_cmd)
 {
-    audio.connecttoFS(SD, "/voice_time/BBIBBI.mp3");
+    audio.connecttoFS(SPIFFS, "/iphone_call.mp3");
     return true;
 }
 
