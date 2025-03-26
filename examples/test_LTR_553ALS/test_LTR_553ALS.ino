@@ -27,6 +27,11 @@
  * @date      2023-09-09
  *
  */
+
+// ! This example has been abandoned
+// ! This example has been abandoned
+// ! This example has been abandoned
+
 #include <Wire.h>
 #include <SPI.h>
 #include <Arduino.h>

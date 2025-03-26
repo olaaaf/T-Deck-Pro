@@ -11,12 +11,21 @@
 Under development...
 Please ignore this warehouse!
 
+![alt text](./docs/README_img/image.png)
 
 ## :zero: Version 🎁
 
 ### 1、Version
 
+The T-Deck-Pro comes in two versions, one with the audio module PCM512A and one with the 4G module A7682E
+
+As shown in the figure below, the annotated modules of the two versions are different;
+
+![alt text](./docs/README_img/image-1.png)
+
 ### 2、Where to buy.
+
+[LilyGo Store](https://lilygo.cc/products/t-deck-pro)
 
 ## :one: Product 🎁
 
@@ -34,13 +43,29 @@ Please ignore this warehouse!
 |      Touch       |         CST328 (0x1A)          |
 |    Gyroscope     |        BHI260AP (0x28)         |
 |     Keyboard     |         TCA8418 (0x34)         |
-|   Light sensor   |       LTR_553ALS (0x23)        |
+|   Light sensor   |🔴 (Obsolete) LTR_553ALS (0x23)|
 
 A7682E https://en.simcom.com/product/A7682E.html
 
 ## :two: Module 🎁
 
 Datasheets on the chip are available in [./hardware](./hardware/) directory.
+~~~
+zinggjm/GxEPD2@1.5.5
+jgromes/RadioLib@6.4.2
+lewisxhe/SensorLib@^0.2.0
+mikalhart/TinyGPSPlus @ ^1.0.3
+vshymanskyy/TinyGSM@^0.12.0
+lvgl/lvgl @ ~8.3.9
+lewisxhe/XPowersLib @ ^0.2.4
+adafruit/Adafruit TCA8418 @ ^1.0.1
+adafruit/Adafruit BusIO @ ^1.14.4
+olikraus/U8g2_for_Adafruit_GFX@^1.8.0
+adafruit/Adafruit GFX Library@^1.11.10
+esphome/ESP32-audioI2S#v3.0.12
+~~~
+
+
 
 ## :three: Quick Start 🎁
 
@@ -86,6 +111,16 @@ Datasheets on the chip are available in [./hardware](./hardware/) directory.
 | Upload Speed                         | 921600                             |
 | USB Mode                             | **CDC and JTAG**                   |
 
+3. Folder structure:
+~~~
+├─boards  : Some information about the board for the platformio.ini configuration project;
+├─docs    : Place some documents;
+├─data    : Picture resources used by the program;
+├─example : Some examples;
+├─firmare : `factory` compiled firmware;
+├─hardware: Schematic diagram of the board, chip data;
+├─lib     : Libraries used in the project;
+~~~
 
 ## :four: Pins 🎁
 
@@ -100,16 +135,12 @@ Datasheets on the chip are available in [./hardware](./hardware/) directory.
 #define BOARD_I2C_ADDR_LTR_553ALS 0x23 // Light sensor --- LTR_553ALS
 #define BOARD_I2C_ADDR_GYROSCOPDE 0x28 // Gyroscope    --- BHI260AP
 #define BOARD_I2C_ADDR_KEYBOARD   0x34 // Keyboard     --- TCA8418
-#define BOARD_I2C_ADDR_BQ27220    0x55 //
-#define BOARD_I2C_ADDR_BQ25896    0x6B //
+#define BOARD_I2C_ADDR_BQ27220    0x55 // BQ27220
+#define BOARD_I2C_ADDR_BQ25896    0x6B // BQ25896
 
 // IIC
 #define BOARD_I2C_SDA  13
 #define BOARD_I2C_SCL  14
-
-#define BOARD_I2S_BCLK 7
-#define BOARD_I2S_DOUT 8
-#define BOARD_I2S_LRC 9
 
 // Keyboard
 #define BOARD_KEYBOARD_SCL BOARD_I2C_SCL
@@ -179,6 +210,11 @@ Datasheets on the chip are available in [./hardware](./hardware/) directory.
 #define BOARD_A7682E_TXD    11
 #define BOARD_A7682E_PWRKEY 40
 
+// PCM5102A
+#define BOARD_I2S_BCLK 7
+#define BOARD_I2S_DOUT 8
+#define BOARD_I2S_LRC 9
+
 // Boot pin
 #define BOARD_BOOT_PIN  0
 
@@ -196,8 +232,6 @@ Datasheets on the chip are available in [./hardware](./hardware/) directory.
 #define BOARD_MIC_CLOCK       18
 // -------------------------------------------------
 ~~~
-
-
 
 ## :five: Test 🎁
 
