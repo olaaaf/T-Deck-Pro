@@ -65,7 +65,27 @@ adafruit/Adafruit GFX Library@^1.11.10
 esphome/ESP32-audioI2S#v3.0.12
 ~~~
 
+### 1. A7682E
 
+Test the functionality of the A7682E using [`examples/A7682E/test_AT`](https://github.com/Xinyuan-LilyGO/T-Deck-Pro/tree/master/examples/A7682E/test_AT)
+
+A7682E is the LTE Cat 1 module that supports wirelesscommunication modes of LTE-FDD/GSM/GPRS/EDGE.   It supports maximum 10Mbps downlink rate and 5Mbps uplink rate. A7682E supports multiple built-in network protocols.
+
+Control Via AT Commands
+~~~
+Frequency Bands LTE-FDD B1/B3/B5/B7/B8/B20
+GSM/GPRS/EDGE 900/1800 MHz
+Supply Voltage 3.4V ~ 4.2V, Typ: 3.8V
+LTE Cat 1   (Uplink up to 5Mbps, Downlink up to10Mbps)
+EDGE        (Uplink/Downlink up to 236.8Kbps)
+GPRS        (Uplink/Downlink up to 85.6Kbps)
+Firmware update via USB/FOTA
+Support language calls
+Support sending and receiving SMS messages
+network protocols (TCP/IP/IPV4/IPV6/Multi-PDP/FTP/FTPS/HTTP/HTTPS/DNS)
+RNDIS/PPP/ECM
+SSL
+~~~
 
 ## :three: Quick Start 🎁
 
