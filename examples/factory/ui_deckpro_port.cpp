@@ -403,6 +403,32 @@ bool ui_a7682_at_cb(const char *at_cmd)
     return false;
 }
 
+void ui_a7682_call(const char *number)
+{
+    char buf[32];
+    lv_snprintf(buf, 32, "D%s;", number);
+    printf("[A7682E] at cmd: %s\n", buf);
+
+    modem.sendAT(buf);
+    delay(100);
+}
+
+void ui_a7682_hang_up(void)
+{
+    modem.sendAT("+CHUP");
+    delay(100);
+}
+
+void ui_a7682_loop_resume(void)
+{
+    vTaskResume(a7682_handle);
+}
+
+void ui_a7682_loop_suspend(void)
+{
+    vTaskSuspend(a7682_handle);
+}
+
 //************************************[ screen 9 ]****************************************** Input
 
 void ui_shutdown_on(void)

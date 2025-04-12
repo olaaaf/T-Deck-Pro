@@ -32,7 +32,6 @@ uint16_t taskbar_statue[TASKBAR_ID_MAX] = {0};
 
 //************************************[ Other fun ]******************************************
 #if 1
-
 static lv_obj_t *scr_back_btn_create(lv_obj_t *parent, const char *text, lv_event_cb_t cb)
 {
     lv_obj_t * btn = lv_btn_create(parent);
@@ -116,9 +115,9 @@ static struct menu_btn menu_btn_list[] =
     {SCREEN5_ID,  &img_test,    "Test",     95,     101},
     {SCREEN6_ID,  &img_batt,    "Battery",  167,    101},
     {SCREEN7_ID,  &img_touch,   "Input",    23,     189},
-    {SCREEN8_ID,  &img_A7682,   "A7682",    95,     189},
+    {SCREEN8_ID,  &img_A7682E,  "A7682E",   95,     189},
     {SCREEN9_ID,  &img_lora,    "Shutdown", 167,    189},
-    {SCREEN10_ID, &img_lora,    "PCM5102",  23,     13},  // Page two
+    {SCREEN10_ID, &img_PCM5102, "PCM5102",  23,     13},  // Page two
 };
 
 static void menu_btn_event_cb(lv_event_t *e)
@@ -281,7 +280,7 @@ static void create0(lv_obj_t *parent)
             {
                 menu_btn_list[i].idx = SCREEN10_ID;
                 menu_btn_list[i].name = "PCM5012";
-                menu_btn_list[i].icon = &img_A7682;
+                menu_btn_list[i].icon = &img_PCM5102;
             }
         }
     }
@@ -1932,6 +1931,7 @@ static scr_lifecycle_t screen7 = {
 };
 #endif
 //************************************[ screen 8 ]****************************************** A7682E
+// --------------------- screen 8 --------------------- A7682E
 #if 1
 static lv_obj_t *a7682_list;
 static lv_obj_t *a7682_page;
@@ -1939,9 +1939,23 @@ static int a7682_num = 0;
 static int a7682_page_num = 0;
 static int a7682_curr_page = 0;
 
+bool ui_a7682_call_test(const char *param)
+{
+    scr_mgr_push(SCREEN8_1_ID, false);
+    return true;
+}
+
+bool ui_a7682_at_test(const char *param)
+{
+    scr_mgr_push(SCREEN8_2_ID, false);
+    return true;
+}
+
 static ui_a7682_handle a7682_handle_list[] = 
 {
     {"A7682 Audio", NULL, NULL, ui_a7682_at_cb},
+    {"Call test", NULL, NULL, ui_a7682_call_test},
+    {"AT test", NULL, NULL, ui_a7682_at_test},
 };
 
 static void a7682_item_create(int curr_apge);
@@ -2120,6 +2134,129 @@ static scr_lifecycle_t screen8 = {
     .destroy = destroy8,
 };
 #endif
+// --------------------- screen 8.1 --------------------- Call test
+#if 1
+static void event_handler(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t * obj = (lv_obj_t *)lv_event_get_target(e);
+    lv_obj_t * ta =  (lv_obj_t *)lv_event_get_user_data(e);
+
+    if(code == LV_EVENT_VALUE_CHANGED) {
+        uint32_t id = lv_btnmatrix_get_selected_btn(obj);
+        const char * txt = lv_btnmatrix_get_btn_text(obj, id);
+        int len = strlen(txt);
+ 
+        if(!strcmp(txt, LV_SYMBOL_CALL)) {
+            ui_a7682_call(lv_textarea_get_text(ta));
+        } else if(!strcmp(txt, "Hang up"))
+        {
+            ui_a7682_hang_up();
+        } else if(!strcmp(txt, LV_SYMBOL_BACKSPACE))
+        {
+            lv_textarea_del_char(ta);
+        }else{
+            lv_textarea_add_text(ta, txt);
+        }
+    }
+}
+
+static const char * btnm_map[] = {  "1", "2", "3", "\n",
+                                    "4", "5", "6", "\n",
+                                    "7", "8", "9", "\n",
+                                    "*", "0", "#", "\n",
+                                    LV_SYMBOL_CALL, "Hang up", LV_SYMBOL_BACKSPACE,""
+                                 };
+
+
+static void scr8_1_btn_event_cb(lv_event_t * e)
+{
+    if(e->code == LV_EVENT_CLICKED){
+        scr_mgr_pop(false);
+    }
+}
+
+static void create8_1(lv_obj_t *parent) 
+{
+    lv_obj_t * ta = lv_textarea_create(parent);
+    lv_textarea_set_one_line(ta, true);
+    lv_obj_set_width(ta, lv_pct(98));
+    lv_obj_align(ta, LV_ALIGN_TOP_MID, 0, lv_pct(20));
+    lv_obj_set_style_text_font(ta, &Font_Mono_Bold_20, LV_PART_MAIN);
+    // lv_obj_add_state(ta, LV_STATE_FOCUSED); /*To be sure the cursor is visible*/
+    lv_obj_clear_flag(ta, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_set_style_text_letter_space(ta, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(ta, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_t * btnm1 = lv_btnmatrix_create(parent);
+    lv_btnmatrix_set_map(btnm1, btnm_map);
+    lv_obj_set_size(btnm1, lv_pct(100)-2, lv_pct(60));
+    lv_obj_set_style_border_width(btnm1, 0, 0);
+    // lv_btnmatrix_set_btn_width(btnm1, 10, 2);        /*Make "Action1" twice as wide as "Action2"*/
+    // lv_btnmatrix_set_btn_ctrl(btnm1, 10, LV_BTNMATRIX_CTRL_CHECKABLE);
+    // lv_btnmatrix_set_btn_ctrl(btnm1, 11, LV_BTNMATRIX_CTRL_CHECKED);
+    lv_obj_align(btnm1, LV_ALIGN_BOTTOM_MID, 0, 0);
+    lv_obj_add_event_cb(btnm1, event_handler, LV_EVENT_VALUE_CHANGED, ta);
+    
+    lv_obj_t *back8_1_label = scr_back_btn_create(parent, ("Call"), scr8_1_btn_event_cb);
+}
+static void entry8_1(void) 
+{
+    ui_a7682_loop_resume();
+    ui_disp_full_refr();
+}
+static void exit8_1(void) {
+    ui_a7682_loop_suspend();
+    ui_disp_full_refr();
+}
+static void destroy8_1(void) { }
+
+static scr_lifecycle_t screen8_1 = {
+    .create = create8_1,
+    .entry = entry8_1,
+    .exit  = exit8_1,
+    .destroy = destroy8_1,
+};
+#endif
+// --------------------- screen 8.2 --------------------- AT test
+#if 1
+static void scr8_2_btn_event_cb(lv_event_t * e)
+{
+    if(e->code == LV_EVENT_CLICKED){
+        scr_mgr_pop(false);
+    }
+}
+
+static void create8_2(lv_obj_t *parent) 
+{
+    lv_obj_t *lab = lv_label_create(parent);
+    lv_obj_set_width(lab, lv_pct(95));
+    lv_obj_set_style_text_font(lab, FONT_BOLD_SIZE_17, LV_PART_MAIN);
+    lv_label_set_text(lab, "Open the serial port, set the baud rate to 115200, "
+                            "and send the AT command of A7682E to test the function.");
+    lv_obj_center(lab);
+    
+    lv_obj_t *back8_2_label = scr_back_btn_create(parent, ("AT test"), scr8_2_btn_event_cb);
+}
+static void entry8_2(void) 
+{
+    ui_a7682_loop_resume();
+    ui_disp_full_refr();
+}
+static void exit8_2(void) {
+    ui_a7682_loop_suspend();
+    ui_disp_full_refr();
+}
+static void destroy8_2(void) { }
+
+static scr_lifecycle_t screen8_2 = {
+    .create = create8_2,
+    .entry = entry8_2,
+    .exit  = exit8_2,
+    .destroy = destroy8_2,
+};
+#endif
+
 //************************************[ screen 9 ]****************************************** Shutdown
 #if 1
 static lv_timer_t *shutdown_timer = NULL;
@@ -2512,7 +2649,9 @@ void ui_deckpro_entry(void)
     scr_mgr_register(SCREEN6_1_ID,  &screen6_1);    //  - BQ25896
     scr_mgr_register(SCREEN6_2_ID,  &screen6_2);    //  - BQ27220
     scr_mgr_register(SCREEN7_ID,    &screen7);      // 
-    scr_mgr_register(SCREEN8_ID,    &screen8);      // 
+    scr_mgr_register(SCREEN8_ID,    &screen8);      // A7682E
+    scr_mgr_register(SCREEN8_1_ID,  &screen8_1);    //  - Call test
+    scr_mgr_register(SCREEN8_2_ID,  &screen8_2);    //  - AT test
     scr_mgr_register(SCREEN9_ID,    &screen9);      // 
     scr_mgr_register(SCREEN10_ID,   &screen10);     // 
 

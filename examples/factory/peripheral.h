@@ -5,7 +5,7 @@
 #define LORA_PRIORITY    (configMAX_PRIORITIES - 2)
 #define WS2812_PRIORITY  (configMAX_PRIORITIES - 3)
 #define BATTERY_PRIORITY (configMAX_PRIORITIES - 4)
-#define INFARED_PRIORITY (configMAX_PRIORITIES - 5)
+#define A7682E_PRIORITY  (configMAX_PRIORITIES - 5)
 
 enum {
     E_PERI_LORA = 0,

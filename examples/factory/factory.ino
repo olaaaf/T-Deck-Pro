@@ -20,6 +20,7 @@
 #include "peripheral.h"
 
 TinyGsm modem(SerialAT);
+TaskHandle_t a7682_handle;
 
 XPowersPPM PPM;
 BQ27220 bq27220;
@@ -265,6 +266,23 @@ static bool sd_care_init(void)
     return true;
 }
 
+static void a7682_task(void *param)
+{
+    vTaskSuspend(a7682_handle);
+    while (1)
+    {
+        while (SerialAT.available())
+        {
+            SerialMon.write(SerialAT.read());
+        }
+        while (SerialMon.available())
+        {
+            SerialAT.write(SerialMon.read());
+        }
+        delay(1);
+    }
+}
+
 static bool A7682E_init(void)
 {
     Serial.println("Place your board outside to catch satelite signal");
@@ -273,6 +291,14 @@ static bool A7682E_init(void)
     SerialAT.begin(115200, SERIAL_8N1, BOARD_A7682E_TXD, BOARD_A7682E_RXD);
 
     Serial.println("Start modem...");
+
+    // power on
+    digitalWrite(BOARD_A7682E_PWRKEY, LOW);
+    delay(10);
+    digitalWrite(BOARD_A7682E_PWRKEY, HIGH);
+    delay(50);
+    digitalWrite(BOARD_A7682E_PWRKEY, LOW);
+    delay(10);
 
     int retry_cnt = 5;
     int retry = 0;
@@ -292,6 +318,8 @@ static bool A7682E_init(void)
     
     Serial.println();
     delay(200);
+
+    xTaskCreate(a7682_task, "a7682_handle", 1024 * 3, NULL, A7682E_PRIORITY, &a7682_handle);
 
     return (retry < retry_cnt);
 }
