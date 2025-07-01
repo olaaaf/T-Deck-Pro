@@ -1,13 +1,15 @@
 ## :one: Firmware Description
 
-|            Firmware            |          Remarks           |
-| :----------------------------: | :------------------------: |
-| H693_factory_v1.2_20250412.bin |      Factory firmware      |
-|          test_EPD.bin          |        Display test        |
-|       test_pcm5102a.bin        | Sound test（non-4G version） |
+|            Firmware                |          Remarks            |
+| :--------------------------------: | :-------------------------: |
+|   H693_factory_v1.2_20250412.bin   |      Factory firmware       |
+| H693_factory_v1.2_20250412_fix.bin |        Fix firmware         |
+|           test_EPD.bin             |        Display test         |
+|        test_pcm5102a.bin           | Sound test（non-4G version） |
+
+Fix firmware：To download the firmware using `flash_download_tools`, you need to first ERASE by clicking `ERASE`. After the download is complete, you need to plug and unplug the usb once.
 
 ## :two: Download Instructions
-
 
 More documentation about flash_download_tools: [link](https://docs.espressif.com/projects/esp-test-tools/en/latest/esp32/production_stage/tools/flash_download_tool.html);
 
