@@ -258,6 +258,9 @@ SSL
 
 ## :six: FAQ 🎁
 
+Q:The screen display has timed out. Even after downloading the factory firmware, the screen still cannot display. Disconnect the battery, wait for about 10 seconds, and then reconnect. Does this solve the problem?
+
+A:This might be due to the `rst` pin of the screen not being connected to the hardware, which causes the screen to fail to reset. With the battery constantly on, first download the `bq25896_shutdown` program to shutdown the device, and then plug in the usb to download the factory firmware to see if the problem can be solved.
 
 ## :seven: Schematic & 3D 🎁
 
