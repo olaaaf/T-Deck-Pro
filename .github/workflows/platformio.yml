@@ -17,7 +17,8 @@ jobs:
         example: 
           - examples/factory
           - examples/A7682E/test_AT
-          - examples/A7682E/bq25896_shutdown
+          - examples/bq27220
+          - examples/bq25896_shutdown
           - examples/test_BHI260AP
           - examples/test_EPD
           - examples/test_GPS
