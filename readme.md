@@ -8,9 +8,6 @@
 
 ![Build Status](https://github.com/Xinyuan-LilyGO/T-Deck-Pro/actions/workflows/platformio.yml/badge.svg?event=push)
 
-Under development...
-Please ignore this warehouse!
-
 ![alt text](./docs/README_img/image.png)
 
 ## :zero: Version 🎁
@@ -255,6 +252,9 @@ SSL
 
 ## :five: Test 🎁
 
+Sleep power consumption.
+
+![alt text](./docs/README_img/image-2.png)
 
 ## :six: FAQ 🎁
 
