@@ -105,7 +105,8 @@ const char HelloEpaper[] = "Hello E-Paper!";
 void helloWorld()
 {
   //Serial.println("helloWorld");
-  display.setRotation(1);
+  display.clearScreen();
+  display.setRotation(0);
   display.setFont(&FreeMonoBold9pt7b);
   if (display.epd2.WIDTH < 104) display.setFont(0);
   display.setTextColor(GxEPD_BLACK);

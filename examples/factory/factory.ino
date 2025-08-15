@@ -13,11 +13,12 @@
 #include <GxEPD2_BW.h>
 #include <TouchDrvCSTXXX.hpp>
 #include <TinyGPS++.h>
-#include "lvgl.h"
+#include <TinyGsmClient.h>
+#include <lvgl.h>
 #include "ui_deckpro.h"
 #include <Fonts/FreeMonoBold9pt7b.h>
-#include "factory.h"
 #include "peripheral.h"
+#include "factory.h"
 
 TinyGsm modem(SerialAT);
 TaskHandle_t a7682_handle;
@@ -217,7 +218,7 @@ static bool bq25896_init(void)
         PPM.getChargerConstantCurr();
         Serial.printf("getChargerConstantCurr: %d mA\n",PPM.getChargerConstantCurr());
 
-        PPM.enableADCMeasure();
+        PPM.enableMeasure();
 
         PPM.enableCharge();
 
